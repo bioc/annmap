@@ -1,0 +1,37 @@
+ 8888b.  88888b.  88888b.  88888b.d88b.  8888b.   88888b. 
+    "88b 888 "88b 888 "88b 888 "888 "88b    "88b  888 "88b
+.d888888 888  888 888  888 888  888  888 .d888888 888  888
+888  888 888  888 888  888 888  888  888 888  888 888 d88P
+"Y888888 888  888 888  888 888  888  888 "Y888888 88888P"
+                                                  888
+                                                  888
+                                                  888
+
+  This is the annmap BioConductor package for use with the annmap database
+available from http://annmap.picr.man.ac.uk/download
+
+  For instructions on how to install that database, please see the README.TXT
+file inside the downloads found on that page.
+
+QUICKSTART:
+
+  After installing this package, you will need to create a databases.txt file
+inside a folder called .annmap in your home directory.
+
+  An example of this file can be found in the root of this source package.
+
+  This example file shows 2 databases installed on a MySQL server on the local
+machine, with the 'username' dbuser and 'password' dbpwd
+
+  The 'port' field can be left blank if you are using the standard MySQL port
+
+  The 'password' can be left blank if you are not using a password
+
+  All elements should be tab separated (tabs are still required, even if the
+element is being left blank)
+
+  The 'name' field is simply a user defined name for this database, which can be
+passed to annmapConnect() as a parameter, or will be displayed to the user in a
+menu if annmapConnect() is called with no parameters
+
+Please let me know of any issues at tyates(at)picr.man.ac.uk

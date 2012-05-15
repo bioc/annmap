@@ -1,0 +1,8 @@
+*.tex
+*.log
+*~
+._*
+vignettes/INSTALL.pdf
+vignettes/annmap.pdf
+inst/unitTests/report*
+*.orig

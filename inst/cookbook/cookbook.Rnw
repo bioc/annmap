@@ -1,0 +1,1056 @@
+% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+%\VignetteIndexEntry{annmap cookbook}
+%\VignetteKeywords{}
+%\VignetteDepends{}
+%\VignettePackage{annmap}
+\documentclass[10pt, a4paper]{article}
+\RequirePackage{colortbl}
+\RequirePackage{xcolor}
+\usepackage{amsmath,pstricks}
+\usepackage{hyperref}
+\usepackage[hmargin=3cm,vmargin=3.5cm]{geometry}
+\usepackage[authoryear,round]{natbib}
+\usepackage{fmtcount} % displaying latex counters
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{wrapfig}
+\SweaveOpts{keep.source=TRUE}
+\definecolor{darkred}{rgb}{0.545,0,0} 
+\definecolor{midnightblue}{rgb}{0.098,0.098,0.439} 
+\definecolor{palered}{rgb}{1.0,0.5,0.5} 
+\definecolor{palegreen}{rgb}{0.5,1.0,0.5} 
+\definecolor{silver}{rgb}{0.95,0.95,0.95}
+\renewcommand*\familydefault{\sfdefault}
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+\newcommand{\code}[1]{{\ttfamily\texttt{#1}}}
+\author{Tim Yates, Chris Wirth \& Crispin Miller}
+\begin{document}
+\lstset{language=R,breaklines=true,basicstyle=\ttfamily\color{midnightblue}} 
+\title{ The \code{annmap} Cookbook;  Examples and Patterns for \code{annmap} }
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+\code{annmap} is a Bioconductor package that provides annotation data and
+cross-mappings between, amongst other things, genes, transcripts, exons, proteins,
+domains and Affymetrix probesets.  This document provides examples of its usage,
+and recipes to help you get started. 
+
+\section{Initial Steps}
+
+\code{annmap} makes use of a MySQL database, \code{annmap}, to provide its
+annotation data (downloadable from the Annmap
+website\footnote{\url{http://annmap.picr.man.ac.uk/download}}). A variety
+of different species are supported - each with their own separate database. 
+
+{\bf This document assumes that you have downloaded and installed one of the
+available MySQL databases (as described in the \href{file:INSTALL.pdf}{INSTALL}
+vignette that came with this package).}
+
+\subsection{Preamble}
+
+This cookbook is designed to walk you through the annmap functions from first
+principles to you being able to generate plots such as Figure \ref{bridgeintro} 
+for your Next-Generation Sequencing data.
+
+<<eval=TRUE,echo=FALSE,results=hide>>=
+library( annmap )
+annmapConnect( 'hs-test' ) 
+
+makeStrandRle = function( range, nReadings, max ) {
+  s = Rle( sample( 0:max, nReadings, replace=T ) )
+  r = runLength( s )
+  r[ 1 ] = start( range )
+  for( i in 2:length( r ) ) {
+    r[ i ] = r[ i ] * ( width( range ) / nReadings )
+  }
+  runLength( s ) = r
+  s
+}
+
+makeRandomRle = function( range, nReadings, max ) {
+  .strand = strandAsInteger( range )
+  ret = list()
+  if( is.na( .strand ) ) {
+    return( list( '+'=makeStrandRle( range, nReadings, max ), '-'=makeStrandRle( range, nReadings, max ) ) )
+  }
+  else if( .strand > 0 )
+    return( makeStrandRle( range, nReadings, max ) )
+  else
+    return( makeStrandRle( range, nReadings, max ) )
+}
+
+makeRandomInput = function( range, max, nReadings, nTracks ) {
+  colours  = rainbow( nTracks, v=0.5, s=0.5 )
+  ret = lapply( 1:nTracks, function( x ) {
+    list( name=paste( "Track", x ),
+          rle=makeRandomRle( range, nReadings, max ),
+          col=colours[ x ] )
+  } )
+  ret
+}
+gene = symbolToGene( 'SHH' )
+strand( gene ) = '*'
+bamfileData = makeRandomInput( gene, 10, 50, 3 )
+@
+
+<<eval=FALSE,echo=TRUE>>=
+gene = symbolToGene( 'SHH' )
+strand( gene ) = '*'
+ngsBridgePlot( gene, bamfileData )
+@
+<<label=bridge1,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 4
+hei = 4
+png("bridge1.png", res=144, units='in', width = wid, height = hei)
+ngsBridgePlot( gene, bamfileData )
+dummy = dev.off()
+cat( "\\begin{figure}[h]")
+cat( "\\centering" )
+cat( "\\includegraphics[width = ", wid, "in, height = ", hei, "in]{bridge1}" )
+cat( "\\caption{Dummy (in this example) NGS data shown alongside SHH.  Grey boxes represent individual values. Coloured regions represent smoothed data. }" )
+cat( "\\label{bridgeintro}" )
+cat( "\\end{figure}")
+@
+
+<<eval=TRUE,echo=FALSE,results=hide>>=
+annmapDisconnect()
+@
+
+\pagebreak
+\subsection{Loading the \code{annmap} package and connecting to the database}
+
+Assuming everything is installed correctly, you should be able to load the package as normal:
+
+<<eval=TRUE,echo=TRUE>>=
+library( annmap )
+@
+
+If this is your first time running the package, you might need to create a
+datasource. These are stored by default in a folder called \code{.annmap} in
+your home directory, but this location can be customised by setting an
+environment variable \code{ANNMAP\_HOME} to point to a folder of your choosing.
+To add a datasource, we will use the \lstinline{annmapAddConnection} method.
+
+Assuming you have installed the \code{annmap\_homo\_sapiens\_66} database into
+a MySQL instance running on your local machine accessed by the username
+\code{'test'} and with a blank password, you can run:
+
+<<eval=FALSE,echo=TRUE>>=
+annmapAddConnection( 'human66', 'homo_sapiens', '66', username='test' )
+@
+
+You then need to tell \code{annmap} to connect to this annotation database:
+
+\begin{Schunk}
+\begin{Sinput}
+annmapConnect( 'human66' )
+\end{Sinput}
+\begin{Soutput}
+Connected to annmap_homo_sapiens_66 (localhost)
+Selected array 'HuEx-1_0' as a default.
+\end{Soutput}
+\end{Schunk}
+
+A typical installation will support a variety of species, each with their own
+version of the \code{annmap} database.  You can specify which database to use in
+the function call. Here, for example, \code{human66} is the name we gave to our
+new connection. If you enter \lstinline{annmapConnect()} without any parameters,
+it will show you a list of possible databases to choose
+from\footnote{unless you only have one database defined, in which case it will
+simply connect you to that}.
+
+\subsection{Disconnecting from the database}
+
+To disconnect from the database, use:
+
+\begin{Schunk}
+\begin{Sinput}
+annmapDisconnect()
+\end{Sinput}
+\begin{Soutput}
+Disconnecting from annmap_homo_sapiens_66 (localhost)
+\end{Soutput}
+\end{Schunk}
+
+Note that you do not have to disconnect before connecting to another database; 
+\code{annmap} will do this automatically for you when \lstinline{annmapConnect} is called.
+
+\subsection{Overview}
+
+The majority of the calls in \code{annmap} fall into one of four categories: 
+\code{'all'} queries that fetch all known instances of an object type,
+\code{'details'} queries that provide more detailed annotation for a list of IDs,
+\code{'to'} queries that provide mappings between things (e.g. from genes to exons),
+and \code{'range'} queries that find the things that lie between a pair of coordinates.
+These are summarised in table \ref{tab:summary}.
+
+\begin{table} 
+    \begin{tabular}{ll|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+        \cline{3-16}
+        ~ & ~                 & \multicolumn{ 14 }{|c|}{ TO } & ~ & ~ & ~ \\
+        \cline{3-16}
+        ~ & ~                 & \rotatebox{90}{Gene} & \rotatebox{90}{Transcript} & \rotatebox{90}{Exon} & \rotatebox{90}{EST Gene} & \rotatebox{90}{EST Transcript} & \rotatebox{90}{EST Exon} & \rotatebox{90}{Prediction Transcript} & \rotatebox{90}{Prediction Exon} & \rotatebox{90}{Probeset} & \rotatebox{90}{Probe} & \rotatebox{90}{Hit} & \rotatebox{90}{Protein} & \rotatebox{90}{Domain} & \rotatebox{90}{Symbol} & ~ & \rotatebox{90}{InRange} & \rotatebox{90}{Details} \\ 
+        \hline
+        \multicolumn{1}{|c|}{\multirow{14}{*}{ \rotatebox{90}{ From } }} & Gene                  & \cellcolor{palered}N    & \cellcolor{palegreen}Y          & \cellcolor{palegreen}Y    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y      & \cellcolor{palegreen}Y      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Transcript            & \cellcolor{palegreen}Y    & \cellcolor{palered}N          & \cellcolor{palegreen}Y    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Exon                  & \cellcolor{palegreen}Y    & \cellcolor{palegreen}Y          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & EST Gene              & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palegreen}Y              & \cellcolor{palegreen}Y        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & EST Transcript        & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palegreen}Y        & \cellcolor{palered}N              & \cellcolor{palegreen}Y        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & EST Exon              & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palegreen}Y        & \cellcolor{palegreen}Y              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Prediction Transcript & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palegreen}Y               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Prediction Exon       & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palered}N        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palered}N       & \cellcolor{palered}N       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Probeset              & \cellcolor{palegreen}Y    & \cellcolor{palegreen}Y          & \cellcolor{palegreen}Y    & \cellcolor{palegreen}Y        & \cellcolor{palegreen}Y              & \cellcolor{palegreen}Y        & \cellcolor{palegreen}Y                     & \cellcolor{palered}N               & \cellcolor{palered}N        & \cellcolor{palegreen}Y     & \cellcolor{palegreen}Y   & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Probe                 & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palegreen}Y   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Hit                   & \cellcolor{palered}N    & \cellcolor{palered}N          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palered}N        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palered}N       & \cellcolor{palered}N       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Protein               & \cellcolor{palegreen}Y    & \cellcolor{palegreen}Y          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palegreen}Y      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Domain                & \cellcolor{palegreen}Y    & \cellcolor{palegreen}Y          & \cellcolor{palered}N    & \cellcolor{palered}N        & \cellcolor{palered}N              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palegreen}Y        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palegreen}Y       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palegreen}Y       & \cellcolor{palegreen}Y       \\ 
+        \cline{2-19}
+        \multicolumn{1}{|c|}{}                        & Symbol                & \cellcolor{palegreen}Y    & \cellcolor{palegreen}Y          & \cellcolor{palered}N    & \cellcolor{palegreen}Y        & \cellcolor{palegreen}Y              & \cellcolor{palered}N        & \cellcolor{palered}N                     & \cellcolor{palered}N               & \cellcolor{palered}N        & \cellcolor{palered}N     & \cellcolor{palered}N   & \cellcolor{palered}N       & \cellcolor{palered}N      & \cellcolor{palered}N      & ~ & \cellcolor{palered}N       & \cellcolor{palered}N       \\
+        \hline
+    \end{tabular}
+    \caption{ \label{tab:summary} The mappings and functions available in annmap database. Mapping queries are of the form \code{XXXToYYY()}, searches using genome coordinates, \code{XXXInRange()}, and detailed annotation \code{XXXDetails()} }
+\end{table}
+
+\pagebreak
+
+\section{ Fetching Data }
+
+\subsection{Retrieving all instances of a given type.}
+
+It is often useful to get a list of, for example, all genes or transcripts in the database.
+For this we would use functions such as \lstinline{allGenes} or \lstinline{allTranscripts}.
+All the functions of this type are defined in the documentation object \lstinline{?annmap.all}.
+
+For example, to get a list of all the chromosomes in the human database, we can simply type:
+
+<<eval=TRUE,echo=FALSE,results=hide>>=
+# Connect to the development db used to build this vignette
+annmapConnect( 'hs-test' )
+@
+
+\begin{Schunk}
+\begin{Sinput}
+annmapConnect( 'human66' )
+\end{Sinput}
+\begin{Soutput}
+Connected to annmap_homo_sapiens_66 (localhost)
+Selected array 'HuEx-1_0' as a default.
+\end{Soutput}
+\end{Schunk}
+
+<<eval=TRUE,echo=TRUE>>=
+allChromosomes()
+@
+
+By default these functions all return a \lstinline{GRanges} object (if the concept of
+genomic coordinates is appropriate), or a \code{data.frame} (if a genomic region doesn't
+exist for the object).  It is also possible to just get the names of the chromosomes
+by passing \lstinline{as.vector=TRUE} as a parameter:
+
+<<eval=TRUE,echo=TRUE>>=
+allChromosomes( as.vector=TRUE )
+@
+
+\subsubsection{ Possible values for \lstinline{as.vector} and \lstinline{as.data.frame} }
+
+Almost all of the functions in \code{annmap} accept an \lstinline{as.vector} parameter,
+and will return a vector of identifiers rather than the full table of available
+information.  Setting \lstinline{as.vector='data.frame'} will return a \code{data.frame},
+rather than a \code{GRanges} object:
+
+\begin{center}
+\begin{tabular}{ l l l r }
+  parameter & & return type & \\
+\hline
+  & & & \\
+  as.vector=TRUE & => & a character vector of ids & \\
+  as.vector=FALSE & => & A GRanges object & (default)\\
+  as.vector='data.frame' & => & A data.frame & \\
+\end{tabular}
+\end{center}
+
+All of the \code{XXXDetails()} functions and functions that map to Hits or coding regions take a parameter \lstinline{as.data.frame} instead (where a vector
+would not be possible):
+
+\begin{center}
+\begin{tabular}{ l l l r }
+  parameter & & return type & \\
+\hline
+  & & & \\
+  as.data.frame=FALSE & => & A GRanges object & (default) \\
+  as.data.frame=TRUE & => & A data.frame & \\
+\end{tabular}
+\end{center}
+
+\subsection{Getting detailed annotation based on database identifiers.}
+
+Sometimes, you will have a list of IDs for which you require more detailed annotation.
+You can use the \lstinline{?annmapDetails} methods for this.
+
+For example, given a list of chromosome names, we can find their length:
+
+<<eval=TRUE,echo=TRUE>>=
+chr.list = c( '1', '2', '3' )
+chromosomeDetails( chr.list )
+@
+
+Or we can look for the details of a few microarray probes by their sequence:
+
+<<eval=TRUE,echo=TRUE>>=
+some.probes = probesetToProbe( '3855295' )
+probeDetails( some.probes )
+@
+
+Note that Probe sequences inside the \code{annmap} database are not the exact physical
+sequences to be found on the  corresponding array. Instead, we always return the sequence
+of the genomic target.
+
+\subsubsection{The order of things}
+\begin{wrapfigure}[6]{l}{7em}\centering
+    \includegraphics[width=2cm,height=2cm,keepaspectratio]{yellow-exclamation.png}
+\end{wrapfigure}
+When calling the following transformation queries (\code{XXXToYYY}, and \code{XXXDetails}), you should not rely on the order of the output being the same as the input order.
+
+If you need to look things up based on the input id you gave them, you should either subset based on the identifier column (ie: \lstinline{d[ elementMetadata( d )$stable_id == 'PTEN', ]}), or you can split the results based on a column (see section \ref{in1})
+
+\subsection{One thing to another}
+
+In this section, we look at the available functions for mapping between annotation items.
+The majority of mappings are available, and all take the form \code{XXXToYYY}\footnote{A
+full list of functions can be found by entering \lstinline{?annmapTo} in an \code{R} console.}
+(Table \ref{tab:summary})
+
+\subsubsection{Finding a gene by its symbol}
+
+For example, we can fetch a gene by its symbol:
+
+<<eval=TRUE,echo=TRUE>>=
+symbolToGene( 'PTEN' )
+@
+
+Or by vector of symbols:
+
+<<eval=TRUE,echo=TRUE>>=
+symbolToGene( c( 'PTEN', 'SHH' ) )
+@
+
+Again, \lstinline{as.vector} works as before:
+
+<<eval=TRUE,echo=TRUE>>=
+symbolToGene( c( 'PTEN', 'SHH' ), as.vector=TRUE )
+@
+
+\subsubsection{Mapping from a gene to its transcripts}
+
+<<eval=TRUE,echo=TRUE>>=
+gene = symbolToGene( c( 'PTEN', 'SHH' ) )
+geneToTranscript( gene )
+@
+
+And with \lstinline{as.vector}:
+
+<<eval=TRUE,echo=TRUE>>=
+transcripts = geneToTranscript( gene, as.vector=TRUE )
+transcripts
+@
+
+We have tried to keep all of the methods in \code{annmap} "type agnostic" - so this will work passing a \lstinline{character} vector as the parameter in place of a \lstinline{GRanges} object:
+
+<<eval=TRUE,echo=TRUE>>=
+gene = symbolToGene( 'PTEN', as.vector=TRUE )
+class( gene )
+geneToTranscript( gene )
+@
+
+\subsubsection{The \lstinline{IN1} field in \lstinline{'to'} results\label{in1}}
+
+The \lstinline{GRanges} and \lstinline{data.frame} returned by \lstinline{'to'} queries, contain a column \lstinline{IN1}.  This corresponds to the initial query that led to the row being generated.  If we extract the \lstinline{IN1} column, we get the original 2 genes that we sent to the query:
+
+<<eval=TRUE,echo=TRUE>>=
+elementMetadata( geneToTranscript( symbolToGene( c( 'PTEN', 'SHH' ) ) ) )$IN1
+@
+
+This can be very useful when we wish to use, for example, \lstinline{merge}, to combine a table of expression data with the annotation data supplied by \code{annmap}.
+
+It can also be used with the \lstinline{split} method to get the returned data into a \lstinline{list}, for example, to generate a list, one element per gene, each containing the exons found in that gene:
+
+<<eval=TRUE,echo=TRUE>>=
+exons = geneToExon( symbolToGene( c( 'PTEN', 'SHH' ) ) )
+split( elementMetadata( exons )[['stable_id']], elementMetadata( exons )[['IN1']] )
+@
+
+\subsubsection{Microarray probeset mappings}
+
+\code{annmap} also provides probe mappings for Affymetrix microarrays. When
+you connect to a database, \code{annmap} will pick an array by default (if
+a mapping exists for that species).
+
+To select your array of choice, you can use the \lstinline{arrayType()} method:
+
+<<eval=TRUE,echo=TRUE>>=
+arrayType( 'HuEx-1_0' )
+@
+
+As with \lstinline{annmapConnect()} calling this function with no parameters
+will give you a menu of available arrays to choose from.
+
+Probesets are treated like any other feature, so:
+<<eval=TRUE,echo=TRUE>>=
+exonToProbeset(geneToExon(symbolToGene('MPI')),as.vector=TRUE)
+@
+
+will find all probesets that map to exons in the gene MPI (as a vector). 
+
+Ommitting the \lstinline{as.vector=TRUE} parameter in the call will give us the
+results in a \lstinline{data.frame}. Here's the details of the first probeset
+from our last query:
+
+<<eval=TRUE,echo=TRUE>>=
+exonToProbeset(geneToExon(symbolToGene('MPI')) )[1,]
+@
+
+As you can see, a probeset's details, comprises a set of scores.  These scores
+are always 0, 1 or 2;
+
+\begin{enumerate}
+\setcounter{enumi}{-1}
+  \item One or more of the probes miss the item of interest
+  \item All of the probes hit the item of interest once (and only once)
+  \item One or more of the probes hit more than one item of interest
+\end{enumerate}
+
+So a \lstinline{hit_score} of 1 means that each and every probe in the probeset
+hit the genome once and only once, but a score of 2 for \lstinline{gene_score}
+means that one or more of the probes hits more than one gene. Since if it also
+has a hit score of 1, this means that the match is at a region where 2 genes
+are overlapping.
+
+\subsubsection{Some subtleties with probeset mappings}
+Probeset mappings in \code{annmap} are done in two ways:
+\begin{enumerate}
+  \item Probes are mapped to the entire genome, and their match locations recorded, and
+  \item they are also mapped directly to cDNA sequences in order to pick up probes and probesets that fall on exon junctions.
+\end{enumerate}
+
+\lstinline{probesetToCdnatranscript} and \lstinline{transcriptToCdnaprobeset}
+provide the mappings needed to retrieve these probesets.
+
+\pagebreak
+
+\section{Searching by genome coordinates}
+
+\subsection{Finding things by their location}
+
+It is also possible to provide a set of genomic regions and find the features
+they contain.
+
+For example:
+
+<<eval=TRUE,echo=TRUE>>=
+geneInRange( '7', 1000000, 1060000, 1 )
+@
+
+will find all of the genes on the forward strand of chromosome '7' that lie
+between positions 1000000 and 1060000. \code{XXXInRange} queries also accept
+\code{data.frame}, \code{RangedData} and \code{GRanges} objects (see
+\lstinline{?annmapRange}):
+
+<<eval=TRUE,echo=TRUE>>=
+# Use a data.frame as the initial parameter
+.df = data.frame( chromosome_name='7', start=1000000, end=1060000, strand=1 )
+geneInRange( .df, as.vector=TRUE )
+
+# Use a RangedData object as the initial parameter
+.rd = RangedData( space='7', ranges=IRanges( start=1000000, end=1060000 ), strand=1 )
+geneInRange( .rd, as.vector=TRUE )
+
+# Use a GRanges object as the initial parameter
+.rd = RangedData( space='7', ranges=IRanges( start=1000000, end=1060000 ), strand=1L )
+.rd = as( .rd, 'GRanges' )
+.rd
+geneInRange( .rd, as.vector=TRUE )
+@
+
+This means that it is possible to chain \code{InRange} queries as you would most of the other queries, ie;
+
+<<eval=TRUE,echo=TRUE>>=
+geneToSymbol(                      # Return the gene symbols
+  exonToGene(                      # get the gene for each exon
+    exonInRange(                   # get all exons contained in the GRanges
+      symbolToGene( 'PTEN' ) ) ) ) # get a GRanges object for PTEN
+@
+
+For example, to find all probes that target within 1Kb of the \code{3\'} end of
+each gene in \code{genes}, we can first alter the range of these objects so
+they are just covering our region of interest:
+
+<<eval=TRUE,echo=TRUE>>=
+genes = geneInRange( '7', 1000000, 1060000, 1 )
+start(genes) = end( genes ) - 1000
+@
+
+Before calling \lstinline{probeInRange} on the modified \lstinline{GRanges}
+object:
+
+<<eval=TRUE,echo=TRUE>>=
+probeInRange( genes )
+@
+
+As with other queries, the \lstinline{as.vector} parameter can be used to
+return more concise results:
+
+<<eval=TRUE,echo=TRUE>>=
+probeInRange( genes, as.vector=TRUE )
+@
+
+For example, it is possible to find estGenes which overlap known genes as follows:
+
+<<eval=TRUE,echo=TRUE>>=
+estGeneInRange( symbolToGene( c( 'lama3', 'tp53', 'shh' ) ), as.vector=TRUE )
+@
+
+\subsection{Adventures with annmapRangeApply}
+
+A common task is to iterate down a \lstinline{GRanges} object and perform a function per row.  This functionality is provided by the method \lstinline{annmapRangeApply()}.
+
+To take a contrived example, lets write a function that takes a \lstinline{GRanges} object, and returns a character vector of the form \code{chr:location} (to provide labels for a graph, say):
+
+<<eval=TRUE,echo=TRUE>>=
+contrived.function = function( chromosome, location ) {
+  paste( chromosome, ':', location, sep='' )
+}
+@
+
+In a moment, we're going to use \lstinline{annmapRangeApply} to map this down a set of transcripts, which we'll retrieve now:
+ 
+<<eval=TRUE,echo=TRUE>>=
+transcripts = geneToTranscript( symbolToGene( c( 'shh', 'tp53' ) ) )
+@
+
+Before we can do this, though, we need to tell the function which columns in the \lstinline{GRanges} object to map onto 'chromosome' and 'location', and also to tell it what datatype each of these parameters should be.
+
+This is done using two additional parameters in \lstinline{annmapRangeApply}: \code{filter} and \code{coerce}. The first defines the column names in the \lstinline{GRanges} object we are interested in, the second, the functions we need to coerce these to the expected types\footnote{The coerce is needed because we can't always rely on R to correctly guess the data type we're expecting ('space' in a \lstinline{GRanges} object will often be converted to a factor, not a character vector as required by \lstinline{paste} in our \lstinline{contrived.function})}:
+
+<<eval=TRUE,echo=TRUE>>=
+contrived.filter = c( chromosome='space', location='start' )
+contrived.coerce = c( as.character, as.numeric )
+@
+
+Once these are defined, we can then fire off our apply statement, as follows:
+
+<<eval=TRUE,echo=TRUE>>=
+annmapRangeApply( transcripts,
+                  contrived.function,
+                  contrived.filter,
+                  contrived.coerce )
+@
+
+\pagebreak
+
+\section{Affymetrix\texttrademark Array Annotation}
+
+As well as providing Ensembl annotation, annmap also provides mappings for Affymetrix\texttrademark arrays, as described in \emph{An annotation infrastructure for the analysis and interpretation of Affymetrix exon array data} \href{http://genomebiology.com/2007/8/5/R79}{Genome Biology 2007, 8:R79, doi:10.1186/gb-2007-8-5-r79}.
+
+\subsection{\code{Exonic}, \code{intronic}, \code{intergenic} and \code{unreliable}}
+
+Probesets in \code{annmap} are defined as being either \lstinline{exonic}, \lstinline{intronic}, \lstinline{intergenic} or \lstinline{unreliable}.  These terms are best described by:
+
+\begin{itemize}
+\item \code{Exonic}:  Probesets are classed as exonic if all of their probes map to the genome only once, and every one of these mappings falls within an exon boundary.
+\item \code{Intronic}:  Probesets are classed as intronic if all of their probes map to the genome only once, but at least one probe misses an exon region, but still falls within the boundary of a gene.
+\item \code{Intergenic}:  Probesets are classed as intergenic if all of their probes map to the genome only once, but at least one probe misses all the known genes.
+\item \code{Unreliable}:  Probesets with one or more multi-targetting probes, or with one or more probes that do not map to the genome, are classed as unreliable.
+\end{itemize}
+
+These categories are a very broad filter.  An unreliable probeset may have 3 probes which all hit in a single location and all hit an exon, but the single probe which misses mapping to the genome will result in the entire probeset being classed as to unreliable.
+ 
+\subsection{The filtering methods}
+
+To filter a collection of probesets by their relevant category, the obvious
+methods exist.  For example, we can look at the probesets that are hitting
+around the gene for TP53:
+
+<<eval=TRUE,echo=FALSE>>=
+annmapClearCache()
+@
+<<eval=TRUE,echo=TRUE>>=
+g     = symbolToGene('TP53')
+ps    = geneToProbeset( g, as.vector=TRUE )
+length(ps)
+@
+
+We can then see numbers of probesets that match each category:
+
+\label{specificitycache}
+<<eval=TRUE,echo=TRUE>>=
+length( exonic( ps ) )
+length( intronic( ps ) )
+length( intergenic( ps ) )
+length( unreliable( ps ) )
+@
+
+So as you can see, hitting \code{TP53}, we have \Sexpr{length( exonic( ps ) )} exonic, \Sexpr{length( intronic( ps ) )} intronic, \Sexpr{length( intergenic( ps ) )} intergenic\footnote{This may seem odd, but note that as only a single probe in a probeset needs to be intergenic for the entire probeset to be categorised as such. So it is possible for a probeset that mostly maps to a gene to be flagged as intergenic.} and \Sexpr{length( unreliable( ps ) )} unreliable probesets.
+
+All of these functions, will take an \code{exclude} parameter that results in an inverted list.  So to get the number of all of the probesets that are not unreliable, we can do:
+
+<<eval=TRUE,echo=TRUE>>=
+length( unreliable( ps, exclude=T ) )
+@
+
+Since anything that is not unreliable must hit the genome somewhere, the following should evaluate to \lstinline{TRUE}:
+
+<<eval=TRUE,echo=TRUE>>=
+u.ps = sort( unreliable( ps, exclude=T ) )
+c.ps = sort( c( intronic( ps ), exonic( ps ), intergenic( ps ) ) )
+all( u.ps == c.ps )
+@
+
+\subsection{UTR filtering}
+
+The function \lstinline{utrProbesets} can be used to find those probesets that hit UTRs:
+
+<<eval=TRUE,echo=TRUE>>=
+gene = symbolToGene( 'TP53' )
+probesets = geneToProbeset( gene )
+utrProbesets( probesets )
+@
+In this form, the function will attempt to match probesets to all possible transcripts and then filter by UTR, so any UTR targeting probeset will be found. 
+
+You can also pass a vector of transcripts in, in which case the search is limited to these:
+
+<<eval=TRUE,echo=TRUE>>=
+transcripts = geneToTranscript( gene, as.vector=TRUE )[1:6]
+transcripts
+utrProbesets( probesets, transcripts )
+@
+
+So these probesets have at least one probe in the UTR regions of the first six transcripts of TP53.
+
+It is also possible to limit the search to only the 3' or 5' UTR:
+
+<<eval=TRUE,echo=TRUE>>=
+utrProbesets( probesets, transcripts, end='3' )
+utrProbesets( probesets, transcripts, end='5' )
+@
+
+It is also possible to omit the list of probesets and the utr.probeset function will generate one for you:
+
+<<eval=TRUE,echo=TRUE>>=
+utrProbesets( NULL, transcripts )
+@
+
+Or you can get a list of probesets which fall inside the coding region of a transcript by using the complementary \lstinline{codingProbesets} function:
+
+<<eval=TRUE,echo=TRUE>>=
+codingProbesets( NULL, transcripts )
+@
+
+\subsection{Coding regions and UTRs}
+
+It is possible to manipulate a list of transcripts so that you find the genomic location of their coding region or UTR.  This is done using the two complementary methods \lstinline{transcriptToUtrRange} and \lstinline{transcriptToCodingRange}.  Here for example is the normal details for a given transcript \code{ENST00000417324} which falls on the reverse strand of Chromosome 1 in human:
+
+<<eval=TRUE,echo=TRUE>>=
+transcriptDetails( 'ENST00000417324' )
+@
+
+We can also get the genomic coordinates of its coding region:
+
+<<eval=TRUE,echo=TRUE>>=
+transcriptToCodingRange( 'ENST00000417324' )
+@
+
+Or, we can get the regions covered by the UTR of this same transcript:
+
+<<eval=TRUE,echo=TRUE>>=
+transcriptToUtrRange( 'ENST00000417324' )
+@
+
+Again, these two methods take an optional \lstinline{'end'} parameter to specify which end of the transcript you want to work with\footnote{if you pass an \lstinline{'end'} to
+\lstinline{transcriptToCodingRange}, you are choosing which UTR to omit from the range, i.e. passing \lstinline{end='3'} returns you the range that covers both the coding range
+and the 5' end, but not the 3' end.}:
+
+<<eval=TRUE,echo=TRUE>>=
+transcriptToCodingRange( 'ENST00000417324', end='3' )
+transcriptToUtrRange( 'ENST00000417324', end='3' )
+@
+
+\pagebreak
+
+\section{\code{annmap}'s local cache}
+
+You may have noticed that the first time we called \lstinline{exonic} on page
+\pageref{specificitycache}, \code{annmap} told us that it was \code{'Building
+probeset specificity cache......'}.  This cache allows us to filter large
+numbers of probesets much quicker than doing each in turn.  However, for
+smaller queries of less than about 1000 probesets (on our system) it is quicker
+not to suffer the $\approx$ 1s load time for the cache to be loaded into memory
+from disk.
+
+If you are running lots of these filtering queries on small numbers of
+probesets (in a loop or apply, for example), it might be worth turning the
+cache off whilst you run them:
+
+<<eval=TRUE,echo=TRUE>>=
+annmapToggleCaching()
+@
+
+Now, the cache (on by default) has been turned off. (This can be seen by the return value of \lstinline{FALSE}).  Calling toggle again will turn it back on:
+
+<<eval=TRUE,echo=TRUE>>=
+annmapToggleCaching()
+@
+
+Currently we cache the probeset specificity data used for the filters, described above, and the calls to \code{allXXX}.  The cache is stored in \code{.annmap/cache}.
+
+\section{The path to the answer matters}
+
+\subsection{The probeset boundary to commutativity }
+
+In general, \code{annmap} is commutative. For example, if you go from a list of genes to transcripts and back again, you will end up where you started:
+
+<<eval=TRUE,echo=TRUE>>=
+genes = symbolToGene( c( 'PTEN', 'SHH' ), as.vector=TRUE )
+genes
+transcripts = geneToTranscript( genes, as.vector=TRUE )
+transcripts
+genes = transcriptToGene( transcripts, as.vector=TRUE )
+genes
+geneToSymbol( genes )
+@
+
+However, with probesets, this commutativity is broken.  This is because they (even exonic probesets) can hit genes, transcripts or exons other than those in the list that you passed in -- for example:
+
+<<eval=TRUE,echo=TRUE>>=
+genes = symbolToGene( c( 'pten', 'shh' ), as.vector=TRUE )
+genes
+probesets = exonic( geneToProbeset( genes, as.vector=TRUE ) )
+probesets
+genes = probesetToGene( probesets, as.vector=TRUE )
+genes
+geneToSymbol( genes )
+@
+
+Indeed, any mapping involving hits, probes or probesets, are not commutative.
+
+\pagebreak
+
+\section{Utility methods}
+
+\subsection{Splicing Index}
+
+For this test, we have an eSet object stored locally which contains expression data
+for an MCF7/MCF10A dataset around the gene 'tp53'.
+
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=
+load( file.path( .path.package('annmap'), 'rdata', 'HuEx-1_0.tp53.expr.RData' ) )
+x.rma
+@
+
+So, we can call our \lstinline{spliceIndex} method, passing this data, the gene id for 'tp53' and
+the fact that the first 3 columns are one sample type (mcf7) and the second 3 are the
+other sample.
+
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=
+spliceIndex( x.rma, symbolToGene( 'TP53' ), gps=list(1:3,4:6) )
+@
+
+As can be seen, this call returns a list, with one \lstinline{data.frame} per gene.  In
+this example, we only have passed a single gene for brevity.
+
+\subsection{Mapping probes into transcript coordinates}
+
+To find the location of probes relative to the mature, spliced mRNA sequence (rather than in genome coordinate space), the function \lstinline{transcriptToTranslatedprobes} joins the exons in a transcript (from the \lstinline{5'} end to the \lstinline{3'} end), and then converts the probe locations so that they are an offset from the \lstinline{5'} end of the transcript.
+
+<<eval=TRUE,echo=TRUE>>=
+transcriptToTranslatedprobes( c( 'ENST00000462694', 'ENST00000329958' ) )
+@
+
+Please note, that this function does not return probes that span the exon-junctions of the combined transcript sequence.
+
+\subsection{Converting between Genomic, Transcript and Protein coordinates}
+
+In \code{annmap}, there are two functions that convert between genomic coordinates and the related transcript/protein coordinates.
+
+<<eval=TRUE,echo=TRUE>>=
+# Given the tp53 gene
+gene        = symbolToGene( 'tp53' )
+# And the transcripts for this gene
+transcripts = geneToTranscript( gene )
+# And the proteins for this transcript
+proteins    = transcriptToProtein( transcripts )
+# get the transcript coords for the transcripts of this gene, at the start of this gene
+genomeToTranscriptCoords( start( gene ), transcripts )
+# With as.vector=TRUE
+genomeToTranscriptCoords( start( gene ), transcripts, as.vector=TRUE )
+
+# Get the coding range for the transcripts
+coding = transcriptToCodingRange( transcripts )
+
+# And then to protein coordinates
+genomeToProteinCoords( start( coding ), proteins )
+# With as.vector=TRUE
+genomeToProteinCoords( start( coding ), proteins, as.vector=TRUE )
+@
+
+There are also functions for performing translation in the opposite direction; \lstinline{proteinCoordsToGenome} and \lstinline{transcriptCoordsToGenome}.
+
+<<eval=TRUE,echo=TRUE>>=
+pos.one = transcriptCoordsToGenome( transcripts, 1, as.vector=TRUE )
+pos.one
+@
+
+And as we are on the reverse strand, all these locations should match the end of the transcripts:
+
+<<eval=TRUE,echo=TRUE>>=
+pos.one == end( transcripts )
+@
+
+\subsection{Plotting data with \lstinline{genomicPlot}}
+
+\lstinline{genomicPlot} will plot the genes and exons found at a given locus.
+
+For example, to plot the genomic region around the gene \code{MPI} (Figure \ref{tp53onestrand}):
+
+<<eval=FALSE,echo=TRUE>>=
+range = symbolToGene( 'MPI' )
+ranges( range ) = ranges( range ) + 5000
+genomicPlot( range )
+@
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{fig7}
+\caption{A genomic plot 5000bp either side of MPI.}
+\label{tp53onestrand}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{fig8}
+\caption{A genomic plot 5000bp either side of MPI with the opposite strand drawn 'washed out'.}
+\label{tp53bothstrand}
+\end{minipage}
+\end{figure}
+
+<<label=fig7,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 2
+pdf("fig7.pdf", width = wid, height = hei)
+range = symbolToGene( 'MPI' )
+ranges( range ) = ranges( range ) + 5000
+genomicPlot( range )
+dummy = dev.off()
+@
+
+We can also show the opposite strand, in one of two ways.  First, passing \lstinline{draw.opposite.strand=TRUE}, results in a \emph{'washed out'} view of the opposite strand (Figure \ref{tp53bothstrand}).
+
+<<eval=FALSE,echo=TRUE>>=
+genomicPlot( range, draw.opposite.strand=TRUE )
+@
+<<label=fig8,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 3.6
+pdf("fig8.pdf", width = wid, height = hei)
+genomicPlot( range, draw.opposite.strand=TRUE )
+dummy = dev.off()
+@
+
+Alternatively setting the \lstinline{strand} column from the range parameter we are passing in (Figure \ref{tp53nostrand}) to \code{'*'} results in both strands being shown.
+
+<<eval=FALSE,echo=TRUE>>=
+strand( range ) = '*'
+genomicPlot( range )
+@
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{fig9}
+\caption{Both strands 5000bp either side of MPI.}
+\label{tp53nostrand}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{fig10}
+\caption{Both strands 5000bp either side of MPI with highlights.}
+\label{tp53highlights}
+\end{minipage}
+\end{figure}
+
+<<label=fig9,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 3.6
+pdf("fig9.pdf", width = wid, height = hei)
+strand( range ) = '*'
+genomicPlot( range )
+dummy = dev.off()
+@
+
+It is also possible to highlight regions of the genome with your own annotation.  To do this, you simply need to pass in a \lstinline{data.frame} containing columns \code{start}, \code{end}, \code{strand} and \code{name}.
+
+For example, we could add regions to the start and end locations of \code{MPI} but on the opposite strand and call them \code{annmap1} and \code{annmap2} (Figure \ref{tp53highlights});
+
+<<eval=TRUE,echo=TRUE>>=
+a1          = symbolToGene( 'MPI' )
+end( a1 )   = start( a1 ) + 1000
+a2          = symbolToGene( 'MPI' )
+start( a2 ) = end( a2 ) - 1000
+hig         = data.frame( start =c( as.integer( start( a1 ) ), as.integer( start( a2 ) ) ),
+                          end   =c( as.integer(   end( a1 ) ), as.integer(   end( a2 ) ) ),
+                          strand=c(   strandAsInteger( a1 ),     strandAsInteger( a2 )   ) * -1,
+                          name  =c(   'annmap1',   'annmap2' ) )
+@
+<<eval=FALSE,echo=TRUE>>=
+genomicPlot( range, highlights=hig )
+@
+<<label=fig10,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 3.6
+pdf("fig10.pdf", width = wid, height = hei)
+genomicPlot( range, highlights=hig )
+dummy = dev.off()
+@
+
+\subsection{Plotting NGS data with \lstinline{ngsBridgePlot}}
+
+The \lstinline{ngsBridgePlot} method allows NGS read data to be plotted
+alongside a \lstinline{genomicPlot}.  This was how Figure \ref{bridgeintro} was
+generated.  There are many options for this plot function; here we will cover
+the most important ones.
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{bridge2}
+\caption{Dummy (in this example) NGS data shown alongside SHH.}
+\label{fig:bridge2}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{bridge3}
+\caption{Dummy (in this example) NGS data shown alongside SHH with probes shown.}
+\label{fig:bridge3}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{bridge4}
+\caption{Dummy (in this example) NGS data shown alongside SHH (both strands) with probes shown.}
+\label{fig:bridge4}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[b]{0.5\linewidth}
+\centering
+\includegraphics[scale=1]{bridge5}
+\caption{Dummy (in this example) NGS data shown alongside SHH. Both strands of NGS reads are shown. Exon depth plot hidden.}
+\label{fig:bridge5}
+\end{minipage}
+\end{figure}
+
+To plot Bamfile data alongside a region (and strand) denoted by a given gene,
+you can do (Figure \ref{fig:bridge2}):
+
+<<eval=FALSE,echo=TRUE>>=
+gene = symbolToGene( 'SHH' )
+ngsBridgePlot( gene, bamfileData )
+@
+<<label=bridge2,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 4
+png("bridge2.png", res=200, units='in', width = wid, height = hei)
+gene = symbolToGene( 'SHH' )
+ngsBridgePlot( gene, bamfileData )
+dummy = dev.off()
+@
+
+If you want to show where the probes for a given array hit this region, you can set the \code{probe.plot} parameter to the \lstinline{genomicProbePlot} function (Figure \ref{fig:bridge3})
+
+<<eval=FALSE,echo=TRUE>>=
+gene = symbolToGene( 'SHH' )
+ngsBridgePlot( gene, bamfileData, probe.plot=genomicProbePlot )
+@
+<<label=bridge3,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 4
+png("bridge3.png", res=200, units='in', width = wid, height = hei)
+gene = symbolToGene( 'SHH' )
+ngsBridgePlot( gene, bamfileData, probe.plot=genomicProbePlot )
+dummy = dev.off()
+@
+
+And as we saw in the preamble to this document, we can set the strand of the given range to \code{'*'} and both strands of the region will be shown (Figure \ref{fig:bridge4}).
+
+<<eval=FALSE,echo=TRUE>>=
+gene = symbolToGene( 'SHH' )
+strand( gene ) = '*'
+ngsBridgePlot( gene, bamfileData )
+@
+<<label=bridge4,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 4
+png("bridge4.png", res=200, units='in', width = wid, height = hei)
+gene = symbolToGene( 'SHH' )
+strand( gene ) = '*'
+ngsBridgePlot( gene, bamfileData )
+dummy = dev.off()
+@
+
+Or, we can plot the genomicPlot for a single strand, but show the NGS data for both strands side-by-side using the \lstinline{trace.match.strand} parameter and, for clarity, turn off the \lstinline{exon.depth.plot} (Figure \ref{fig:bridge5}).
+
+<<eval=FALSE,echo=TRUE>>=
+gene = symbolToGene( 'SHH' )
+# trace.match.strand=FALSE would have the same effect
+ngsBridgePlot( gene, bamfileData, exon.depth.plot=NULL, trace.match.strand='*' )
+@
+<<label=bridge5,fig=FALSE,results=tex,echo=FALSE>>=
+wid = 3.6
+hei = 4
+png("bridge5.png", res=200, units='in', width = wid, height = hei)
+gene = symbolToGene( 'SHH' )
+ngsBridgePlot( gene, bamfileData, exon.depth.plot=NULL, trace.match.strand='*' )
+dummy = dev.off()
+@
+
+In all these examples, the bamfileData is a synthetic object we have created for the purposes of this vignette.  Its structure is:
+
+<<eval=TRUE,echo=TRUE>>=
+str( bamfileData )
+@
+
+As you can see, it is a list containing a list for each track.  Each of these track lists contain the \code{name} of the track, \code{col} (its colour), and an \code{rle} element which contains a list of \code{Rle} elements (one for \code{'+'}, the forward strand and one for the reverse; \code{'-'})
+
+To generate this object from actual BAM file data there is a helper function \lstinline{generateBridgeData}.  Given 3 BAM files you wish to display on the plot -- \code{data1.bam}, \code{data2.bam} and \code{data3.bam}:
+
+<<eval=FALSE,echo=TRUE>>=
+bamfiles = c( 'data1.bam', 'data2.bam', 'data3.bam' )
+data = generateBridgeData( symbolToGene( 'SHH' ), bamfiles )
+@
+
+Will generate the required format with sensible defaults for \code{name} and \code{col}.  These defaults can be overridden by setting the \code{names} and \code{colours} parameters on the \lstinline{generateBridgeData} function.
+
+\end{document}

@@ -1,0 +1,156 @@
+% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+%\VignetteIndexEntry{annmap installation instruction}
+%\VignetteKeywords{}
+%\VignetteDepends{}
+%\VignettePackage{annmap}
+%documentclass[12pt, a4paper]{article}
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,pstricks}
+% With MikTeX 2.9, using pstricks also requires using auto-pst-pdf or running
+% pdflatex will fail. Note that using auto-pst-pdf requires to set environment
+% variable MIKTEX_ENABLEWRITE18=t on Windows, and to set shell_escape = t in
+% texmf.cnf for Tex Live on Unix/Linux/Mac.
+\usepackage{auto-pst-pdf}
+\usepackage{hyperref}
+\usepackage[authoryear,round]{natbib}
+\usepackage{color}
+\usepackage{wrapfig}
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault}
+
+\definecolor{NoteGrey}{rgb}{0.96,0.97,0.98}
+
+\textwidth=6.2in
+\textheight=9.5in
+\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-1in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\code}[1]{{\texttt{#1}}}
+
+\author{Tim Yates}
+\begin{document}
+\title{\code{annmap} installation instructions}
+
+\maketitle
+
+\tableofcontents
+
+\section {Installation of the \code{annmap} database}
+
+The R package requires access to a MySQL database server running a current version
+of the \code{Annmap Database}. Database packs (complete with installation
+instructions) may be downloaded from \url{http://annmap.picr.man.ac.uk/download}.
+
+\subsection{Pre-requisites}
+
+The following are required for the Annmap Database installation:
+
+\begin{itemize}
+\item MySQL Server v5.0.27+
+\item 20GB+ Free disk space
+\end{itemize}
+
+\subsection{Installation}
+
+\begin{center}
+\fcolorbox{black}{NoteGrey} {
+\begin{minipage}{13.5cm}
+\begin{center}
+\textbf{ Important }
+\end{center}
+\begin{center}
+\textbf{You do not need to pre-install Ensembl as you did before with the deprecated \code{exonmap} package}
+\end{center}
+\end{minipage}
+}
+\end{center}
+
+  First, you will need to download and unzip the \code{annmap} database for the species and version of
+Ensembl you are interested in studying.  This can be downloaded from \url{http://annmap.picr.man.ac.uk/download}
+
+  You will then need to create the database into which to load the data.  To do
+this, simply log in to your MySQL server, and execute the following command\footnote{This obviously
+assumes you are installing v56 of the homo\_sapiens database.  You'll need to replace the database
+name with the one you have downloaded.}:
+
+\begin{center}
+\code{create database annmap\_homo\_sapiens\_66 ;}
+\end{center}
+
+  Then, we have prepared 2 installation scripts to import the annmap database
+into your chosen MySQL server.  These can be found in the root folder of the database package
+you first downloaded.
+
+\begin{itemize}
+\item Windows \code{importdb.bat}
+\item OS X/Linux \code{importdb.sh}
+\end{itemize}
+
+  To utilise these files, you will need to edit them to set your username,
+select your password preferences (no password, prompt for password, or hardcoded
+password), and set the hostname of the server mysql is running on.  All of these
+settings can be found towards the top of the installdb script.
+
+  Once run, the script will import all of the data into your MySQL server (this
+will take a few hours, due to the amount of data).
+
+\pagebreak
+
+\section {Database configuration}
+
+\subsection{Setting up the configuration folder}
+
+The \code{annmap} package requires a file called \code{databases.txt} to be
+placed inside a known folder.  The package checks for this file in the following
+locations, and uses the first file it locates:
+
+\begin{enumerate}
+  \item
+    A location defined by the System Environment Variable \code{ANNMAP\_HOME}.
+  \item
+    A folder named \code{.annmap} inside the current user's home directory (On
+    my OS X machine, this will be \code{/Users/tyates/.annmap/})\footnote{If
+    you are not sure where your home directory is, you can find out through R by
+    typing \code{Sys.getenv( "HOME" )} into an R console.}.
+\end{enumerate}
+
+\subsection{Setting up the \code{databases.txt} file}
+
+The \code{databases.txt} file is a tab-delimited file (a comma-delimited file is also accepted) in which each row defines a
+particular instance of an annmap database.  The first row is always a list of
+tab-delimited column headings.
+
+The columns; \code{port} and \code{password} may be left blank if you are using
+the default MySQL port (3306), or have a user account with no password required.
+Password can also be set to \code{<ASK>}, in which case, the system will ask you to
+enter your password before it connects to the server.
+
+An example follows;
+
+\fcolorbox{black}{NoteGrey} {
+  \begin{tabular}{ l l l l l l l }
+    \code{name}  & \code{host}          & \code{species}       & \code{version} & \code{port} & \code{username}  & \code{password} \\
+    \code{hs}    & \code{localhost}     & \code{homo\_sapiens} & \code{66}      & \code{4406} & \code{dbuser}    & \code{dbpwd} \\
+    \code{mouse} & \code{anotherserver} & \code{mus\_sapiens}  & \code{66}      &             & \code{userNoPwd} & \\
+  \end{tabular}
+}
+
+This example file (when put in the correct location) would set up two databases:
+one called '\code{hs}' pointing to a v66 Homo Sapiens database running on the local
+machine (on a different port to the default); and another running v66 Mus Musculus
+on '\code{anotherserver}'.
+
+When you run \code{annmapConnect()} inside R, you should see both these appearing
+in a list for you to select which database to attach to.  Or you can skip the
+menu by entering the database of choice into the command as a parameter: 
+\code{annmapConnect('mouse')}.
+
+\end{document}

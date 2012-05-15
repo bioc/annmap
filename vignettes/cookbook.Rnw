@@ -1,0 +1,9 @@
+% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+%\VignetteIndexEntry{The Annmap Cookbook}
+%\VignetteKeywords{}
+%\VignetteDepends{}
+%\VignettePackage{annmap}
+\author{Tim Yates}
+\begin{document}
+Placeholder
+\end{document}

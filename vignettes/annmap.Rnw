@@ -1,0 +1,109 @@
+% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+%\VignetteIndexEntry{annmap primer}
+%\VignetteKeywords{}
+%\VignetteDepends{}
+%\VignettePackage{annmap}
+%documentclass[12pt, a4paper]{article}
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,pstricks}
+% With MikTeX 2.9, using pstricks also requires using auto-pst-pdf or running
+% pdflatex will fail. Note that using auto-pst-pdf requires to set environment
+% variable MIKTEX_ENABLEWRITE18=t on Windows, and to set shell_escape = t in
+% texmf.cnf for Tex Live on Unix/Linux/Mac.
+\usepackage{auto-pst-pdf}
+\usepackage{hyperref}
+\usepackage[authoryear,round]{natbib}
+\usepackage{color}
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault}
+
+\definecolor{NoteGrey}{rgb}{0.96,0.97,0.98}
+
+\textwidth=6.2in
+\textheight=9.5in
+@ \parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-1in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\code}[1]{{\texttt{#1}}}
+
+\author{Tim Yates, Crispin J Miller}
+\begin{document}
+\title{\code{annmap}: The base component for a framework of Genome analysis tools}
+
+\maketitle
+
+\fcolorbox{black}{NoteGrey} {
+\begin{minipage}{13.5cm}
+\begin{center}
+\textbf{ Important }
+\end{center}
+The \code{annmap} package has similar methods to the deprecated \code{exonmap}
+package.  We have tried to keep things as close as possible, but some functions, 
+parameters and returned results are crucially different.  Please make sure you
+have read the migration section on page \pageref{migration} to see how to migrate
+your code from \code{exonmap} to \code{annmap}.
+\end{minipage}
+}
+
+\tableofcontents
+
+\section{Introduction}
+
+\code{annmap} provides access to the genome annotation in the Annmap database
+(\url{http://annmap.picr.man.ac.uk}). It is designed to be a base layer for
+interrogating genome and probeset annotation, and to be extensible, so that later
+packages for Microarray Expression analysis, deep sequencing, or proteomics data
+analysis can be added to extend the functionality of \code{annmap}.  
+
+The functions provided by \code{annmap} can be divided into five main groups:
+
+\begin{enumerate}
+\item Connect/disconnect to an instance of the database
+\item Find genome features within a particular set of coordinates (e.g. \code{geneInRange()})
+\item Find genome features by name (e.g. \code{geneDetails()})
+\item Map between genome features (e.g. \code{geneToExon()})
+\item Handle Affymetrix microarray annotation  
+\end{enumerate}
+
+For detailed examples showing how these tasks are performed, please see the
+\href{file:cookbook.pdf}{cookbook document}, supplied along with this package.
+
+\section{Migration from \code{exonmap}\label{migration}}
+
+\subsection{Working with features previously in the '\code{other features}' database}
+
+In \code{exonmap} if you wanted to find mappings to EST genes, you were required
+to pass a \code{subset='est'} parameter to the method of interest.  EST genes are
+now integrated into the same database with the other features, so now there are
+seperate EST functions for you to call (\code{probesetToEstGene}, etc).
+
+\subsection{Range query parameter order}
+
+The parameter order for \code{InRange} queries has changed.  The four parameters
+required are now in the order:
+
+\begin{enumerate}
+\item \code{chr} -- Chromosome name as a character vector
+\item \code{start} -- Numeric start location
+\item \code{end} -- Numeric stop location
+\item \code{strand} -- Numeric strand direction ( -1 or 1 )
+\end{enumerate}
+
+Alternatively, you can now pass a \code{data.frame}, a \code{GRanges} object or an
+\code{IRanges} object.
+
+\subsection{Gene plots}
+
+In \code{exonmap} there exist the functions \code{gene.graph}, \code{gene.strip}, and \code{genePlot}.
+These do not exist in the \code{annmap} package.  Please see the \href{file:cookbook.pdf}{cookbook pdf}
+supplied with this package for alternatives.
+
+\end{document}

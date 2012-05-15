@@ -1,0 +1,5 @@
+name	host	species	version	port	username	password
+dummy	someserver	homo_sapiens	62		root	
+anotherdummy	anotherserver	mus_musculus	62		root	
+testdb	localhost	homo_sapiens	62		root	
+last.dummy	whatever	schizosaccharomyces_pombe	9		root	

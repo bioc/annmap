@@ -1,0 +1,225 @@
+.single.transcript.to.utr.range = function( id, end=c( 'both', '5', '3' ) ) {
+  end = match.arg( end )
+  transcript = transcriptDetails( id, as.data.frame=TRUE )
+  space = as.character( transcript$chromosome_name )
+  strand = as.numeric( transcript$strand )
+
+  ret = data.frame( IN1=NULL, chromosome_name=NULL, start=NULL, end=NULL, strand=NULL, prime=NULL, phase=NULL, translated=NULL )
+
+  if( is.na( transcript$translation_start_exon ) ) {
+    if( end == 'both' ) {
+      return( data.frame( IN1=c( id, id ), chromosome_name=c( space, space ), start=c( transcript$start, NA ),
+                          end=c( transcript$end, NA ), strand=c( strand, strand ), prime=c( '5', '3' ),
+                          phase=c( NA, NA ), translated=c( FALSE, FALSE ), stringsAsFactors=F ) )
+    }
+    else {
+      return( data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=transcript$end, strand=strand, prime=end, phase=NA, translated=F, stringsAsFactors=F ) )
+    }
+  }
+
+  exons = transcriptToExon( id, as.vector='data.frame' )
+  exons[,'sequence'] = NULL
+
+  exons = exons[ order( exons$start, decreasing=strand < 0 ), ]
+
+  sidx = 0
+  eidx = 0
+
+  for( idx in seq_along( exons$stable_id ) ) {
+    if( exons$exon_id[ idx ] == transcript$translation_start_exon ) {
+      sidx = idx
+    }
+    if( exons$exon_id[ idx ] == transcript$translation_end_exon ) {
+      eidx = idx
+    }
+  }
+
+  if( end %in% c( '5', 'both' ) ) {
+    if( sidx == 1 && transcript$translation_start == 1 ) {
+      # No 5' UTR
+      ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=NA, end=NA, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+    }
+    else if( transcript$translation_start == 1 ) {
+      if( strand > 0 ) {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$start[ sidx ] - 1, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+      }
+      else {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$end[ sidx ] + 1, end=transcript$end, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+      }
+    }
+    else {
+      if( strand > 0 ) {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$start[ sidx ] + transcript$translation_start - 2, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+      }
+      else {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$end[ sidx ] - transcript$translation_start + 2, end=transcript$end, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+      }
+    }
+  }
+
+  if( end %in% c( '3', 'both' ) ) {
+    if( eidx == length( exons$stable_id ) && transcript$translation_end == exons$end[ eidx ] - exons$start[ eidx ] + 1 ) {
+      # No 3' UTR
+      ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=NA, end=NA, strand=strand, prime='3', phase=exons$end_phase[ eidx ], translated=T, stringsAsFactors=F ) )
+    }
+    else if( transcript$translation_end == exons$end[ eidx ] - exons$start[ eidx ] + 1 ) {
+      # Just the last exons
+      if( strand > 0 ) {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$end[ eidx ] + 1, end=transcript$end, strand=strand, prime='3', phase=exons$end_phase[ eidx ], translated=T, stringsAsFactors=F ) )
+      }
+      else {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$start[ eidx ] - 1, strand=strand, prime='3', phase=exons$end_phase[ eidx ], translated=T, stringsAsFactors=F ) )
+      }
+    }
+    else {
+      if( strand > 0 ) {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$start[ eidx ] + transcript$translation_end, end=transcript$end, strand=strand, prime='3', phase=exons$phase[ eidx ], translated=T, stringsAsFactors=F ) )
+      }
+      else {
+        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$end[ eidx ] - transcript$translation_end, strand=strand, prime='3', phase=exons$phase[ eidx ], translated=T, stringsAsFactors=F ) )
+      }
+    }
+  }
+  return( ret )
+}
+
+transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE ) {
+  ids = .get.correct.column( 'transcript', ids )
+  if( is.null( ids ) ) {
+    return( NULL )
+  }
+  end = match.arg( end )
+  ret = do.call( 'rbind', lapply( ids, function( id ) { .single.transcript.to.utr.range( id, end ) } ) )
+
+  if( as.data.frame == TRUE ) {
+    return( ret )
+  }
+
+  ret = ret[ !is.na( ret$start ), ]
+
+  if( dim( ret )[1] == 0 ) {
+    return( NULL )
+  }
+  colnames( ret )[ colnames( ret ) == "chromosome_name" ] = "space"
+
+  ret = as( ret, 'RangedData' )
+  if( .usegranges() ) {
+    ret$strand = as.integer( ret$strand )
+    as( ret, 'GRanges' )
+  }
+  else {
+    ret
+  }
+}
+
+transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE ) {
+  ids = .get.correct.column( 'transcript', ids )
+  if( is.null( ids ) ) {
+    return( NULL )
+  }
+  end = match.arg( end )
+  transcripts = transcriptDetails( ids, as.data.frame=TRUE )
+  .fn = function( idx ) {
+    row = transcripts[ idx, ]
+    utr = transcriptToUtrRange( as.character( row$stable_id ), end='both', as.data.frame=TRUE )
+    phase = utr[ utr$prime == '5', ]$phase
+    end.phase = utr[ utr$prime == '3', ]$phase
+    if( end == '5' ) {
+      utr = utr[ utr$prime == '5', ]
+    }
+    else if( end == '3' ) {
+      utr = utr[ utr$prime == '3', ]
+    }
+    utr = utr[ !is.na( utr$start ), ]
+    new = setdiff( IRanges( row$start, row$end ), IRanges( utr$start, utr$end ) )
+    row$phase = phase
+    row$end.phase = end.phase
+    if( length( new ) == 0 ) {
+      row$start = NA
+      row$end = NA
+    }
+    else {
+      row$start = start( new )
+      row$end = end( new )
+    }
+    row
+  }
+  ret = do.call( 'rbind', lapply( seq_along( transcripts$stable_id ), .fn ) )
+  if( as.data.frame == TRUE ) {
+    return( ret )
+  }
+  ret = ret[ !is.na( ret$start ), ]
+  colnames( ret )[ colnames( ret ) == "chromosome_name" ] = "space"
+  ret = as( ret, 'RangedData' )
+  if( .usegranges() ) {
+    ret$strand = as.integer( ret$strand )
+    as( ret, 'GRanges' )
+  }
+  else {
+    ret
+  }
+}
+
+.probeset.filtering = function( probesets, transcripts, end=c( 'both', '5', '3' ), fn ) {
+  if( missing( probesets ) ) probesets = NULL
+  if( missing( transcripts ) ) transcripts = NULL
+  end = match.arg( end )
+  
+  probesets = .get.correct.column( 'probeset', probesets )
+  transcripts = .get.correct.column( 'transcript', transcripts )
+  
+  if( is.null( probesets ) && is.null( transcripts ) ) {
+    return( NULL )
+  }
+  else if( is.null( probesets ) ) {
+    probesets = transcriptToProbeset( transcripts, as.vector=TRUE )
+    if( is.null( probesets ) ) {
+      return( NULL )
+    }
+  }
+  else if( is.null( transcripts ) ) {
+    transcripts = probesetToTranscript( probesets, as.vector='data.frame' )
+    keep = !( is.na( transcripts$"translation_start" ) )
+    transcripts = unique( transcripts[keep,]$'stable_id' )
+    if( length( transcripts ) == 0 ) {
+      return( NULL )
+    }
+  }
+  else {
+    tpts = probesetToTranscript( probesets, as.vector='data.frame' )
+    keep = !( is.na( tpts$"translation_start" ) )
+    tpts = tpts[keep,]
+    keep = tpts$"stable_id" %in% transcripts
+    tpts = tpts[ keep, ]
+    if( dim( tpts )[1] == 0 ) {
+      return( NULL )
+    }
+    transcripts = unique( tpts$'stable_id' )
+  }
+  probesets = unreliable( probesets, exclude=TRUE )
+  ranges = fn( transcripts, end=end )
+  if( is.null( ranges ) ) {
+    return( NULL )
+  }
+  psts = annmapRangeApply( ranges, probesetInRange )
+  if( is.null( psts ) ) {
+    return( NULL )
+  }
+  psts = .get.correct.column( 'probeset', psts )
+  keep = psts %in% probesets
+  psts = psts[ keep ]
+  if( length( psts ) == 0 ) {
+    NULL
+  }
+  else {
+    psts
+  }
+}
+
+utrProbesets = function( probesets, transcripts, end=c( 'both', '5', '3' ) ) {
+  .probeset.filtering( probesets, transcripts, end, transcriptToUtrRange )
+}
+
+codingProbesets = function( probesets, transcripts, end=c( 'both', '5', '3' ) ) {
+  .probeset.filtering( probesets, transcripts, end, transcriptToCodingRange )
+}
