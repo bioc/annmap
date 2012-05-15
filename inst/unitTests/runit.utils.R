@@ -186,6 +186,18 @@ test.ANNMAP.97 = function() {
     checkTrue( length( data ) > 0, 'geneToExonProbeset with as.vector=TRUE should return data' )
   }
 }
+
+test.ANNMAP.98 = function() {
+  data = tryCatch( annmapConnect( "hs-test" ), error=function(e) { FALSE } )
+  if( length( data ) == 1 ) {
+    print( "Cannot find datasource 'hs-test', so skipping these tests." )
+  }
+  else {
+    # Shouldn't crash
+    transcriptToTranslatedprobes( geneToTranscript( symbolToGene( 'hprt1' ) ) )
+  }
+}
+
 ###############################################################################
 ## Stupid test to make sure its working...
 ##

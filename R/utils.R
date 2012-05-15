@@ -350,77 +350,82 @@ arrayType = function( name=NULL, pick.default=FALSE, silent=FALSE ) {
 }
 
 transcriptToTranslatedprobes = function( ids ) {
-    transcript.ids = .get.correct.column( 'transcript', ids )
-    if( is.null( transcript.ids ) ) {
-      return( NULL )
-    }
-    # Get all the exons for this transcript
-    exons = transcriptToExon( transcript.ids )
-    if( is.null( exons ) ) {
-        tr.split = list()
-    }
-    else {
-        tr.split = split( .attr( exons, 'stable_id' ), .attr( exons, 'IN1' ) )
-    }
-    ret = sapply( transcript.ids, function( id ) {
-        exons = tr.split[[ id ]]
-        exons = exonDetails( exons )
-        if( !is.null( exons ) ) {
-            fwd.strand = any( ( if( .usegranges() ) strandAsInteger( exons ) else exons$strand ) > 0 )
-            translated.width = sum( width( exons ) )
-            probes = sapply( seq_along( .attr( exons, 'stable_id' ) ), function( eidx ) {
-                # Get the details for this exon
-                exon = exons[ eidx, ]
-                probes = probeInRange( exon )
-                if( !is.null( probes ) && length( probes ) > 0 ) {
-                  # Remove those that hang off the ends of the exon
-                  probes = probes[ start( probes ) >= start( exon ), ]
-                  probes = probes[ end( probes ) <= end( exon ), ]
-                  # Check whilst we could still have both types of default class
-                  if( .usegranges() ) {
-                    elementMetadata( probes )$IN1 = .attr( exon, 'stable_id' )
-                  }
-                  else {
-                    probes$IN1 = .attr( exon, 'stable_id' )
-                  }
-                }
-
-                # Return the probes for this exon
-                if( length( probes ) > 0 ) { probes } else { NULL }
-            } )
-            # Then, change these offsets so that they are relative to the start of the
-            # transcript
-            exon.offset = 0
-            for( idx in seq_along( .attr( exons, 'stable_id' ) ) ) {
-                # For the reverse strand, go through the list backwards
-                eidx = if( fwd.strand ) idx else length( .attr( exons, 'stable_id' ) ) - idx + 1
-                if( !is.null( probes[[ eidx ]] ) ) {
-                    ranges( probes[[ eidx ]] ) = shift( ranges( probes[[ eidx ]] ),
-                                                        -start( exons[ eidx, ] ) + exon.offset )
-                    # If on the reverse strand, change offsets to 5' from 3'
-                    if( !fwd.strand ) {
-                        ranges( probes[[ eidx ]] ) = IRanges( start=translated.width - end( probes[[ eidx ]] ),
-                                                              end=translated.width - start( probes[[ eidx ]] ) )
-                        # Re-sort the probes by start
-                        probes[[ eidx ]] = probes[[ eidx ]][ order( start( probes[[ eidx ]] ) ), ]
-                    }
-                  }
-                exon.offset = exon.offset + width( exons[ eidx, ] )
-            }
-            # Remove all NULLs and combine
+  transcript.ids = .get.correct.column( 'transcript', ids )
+  if( is.null( transcript.ids ) ) {
+    return( NULL )
+  }
+  # Get all the exons for this transcript
+  exons = transcriptToExon( transcript.ids )
+  if( is.null( exons ) ) {
+    tr.split = list()
+  }
+  else {
+    tr.split = split( .attr( exons, 'stable_id' ), .attr( exons, 'IN1' ) )
+  }
+  fn = function( id ) {
+    exons = tr.split[[ id ]]
+    exons = exonDetails( exons )
+    if( !is.null( exons ) ) {
+      fwd.strand = any( ( if( .usegranges() ) strandAsInteger( exons ) else exons$strand ) > 0 )
+      translated.width = sum( width( exons ) )
+      probesFn = function( eidx ) {
+        # Get the details for this exon
+        exon = exons[ eidx, ]
+        probes = probeInRange( exon )
+        if( !is.null( probes ) && length( probes ) > 0 ) {
+          # Remove those that hang off the ends of the exon
+          probes = probes[ start( probes ) >= start( exon ), ]
+          probes = probes[ end( probes ) <= end( exon ), ]
+          # Check whilst we could still have both types of default class
+          if( length( probes ) > 0 ) {
             if( .usegranges() ) {
-              probes = probes[ !sapply( probes, is.null ) ]
-              if( length( probes ) > 0 ) {
-                unlist( GRangesList( probes ) )
-              }
+              elementMetadata( probes )$IN1 = .attr( exon, 'stable_id' )
             }
             else {
-              probes = do.call( 'rbind', probes[ !sapply( probes, is.null ) ] )
+              probes$IN1 = .attr( exon, 'stable_id' )
             }
+          }
         }
-    } )
-    names( ret ) = transcript.ids
-    ret
+
+        # Return the probes for this exon
+        if( length( probes ) > 0 ) { probes } else { NULL }
+      }
+      probes = sapply( seq_along( .attr( exons, 'stable_id' ) ), probesFn )
+
+      # Then, change these offsets so that they are relative to the start of the
+      # transcript
+      exon.offset = 0
+      for( idx in seq_along( .attr( exons, 'stable_id' ) ) ) {
+        # For the reverse strand, go through the list backwards
+        eidx = if( fwd.strand ) idx else length( .attr( exons, 'stable_id' ) ) - idx + 1
+        if( !is.null( probes[[ eidx ]] ) ) {
+          ranges( probes[[ eidx ]] ) = shift( ranges( probes[[ eidx ]] ),
+                                              -start( exons[ eidx, ] ) + exon.offset )
+          # If on the reverse strand, change offsets to 5' from 3'
+          if( !fwd.strand ) {
+            ranges( probes[[ eidx ]] ) = IRanges( start=translated.width - end( probes[[ eidx ]] ),
+                                                  end=translated.width - start( probes[[ eidx ]] ) )
+            # Re-sort the probes by start
+            probes[[ eidx ]] = probes[[ eidx ]][ order( start( probes[[ eidx ]] ) ), ]
+          }
+        }
+        exon.offset = exon.offset + width( exons[ eidx, ] )
+      }
+      # Remove all NULLs and combine
+      if( .usegranges() ) {
+        probes = probes[ !sapply( probes, is.null ) ]
+        if( length( probes ) > 0 ) {
+          unlist( GRangesList( probes ) )
+        }
+      }
+      else {
+        probes = do.call( 'rbind', probes[ !sapply( probes, is.null ) ] )
+      }
+    }
+  }
+  ret = sapply( transcript.ids, fn )
+  names( ret ) = transcript.ids
+  ret
 }
 
 .set.conf.dir = function() {

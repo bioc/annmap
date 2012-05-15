@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.0.1}{
+  \itemize{
+    \item{BUG}{ ANNMAP-98 A call to transcriptToTranslatedprobes for transcripts in HPRT1 caused a crash }
+  }
+}
 \section{Changes in version 1.0.0}{
   \itemize{
     \item{NEW}{ Initial Release to Bioconductor }
