@@ -1,6 +1,6 @@
 
 # --------------------------------WARNING---------------------------------
-# This file has be automatically generated when this release of the annmap
+# This file has be automatically generated when this release of the xmap
 # database was generated.  Any changes made to this file will be lost when
 # the database is generated for the next version of Ensembl UNLESS the
 # changes are fed back and placed in the generation script
@@ -123,7 +123,20 @@ setMethod(  'probesetInRange', signature( x='character' ),  function( x, start, 
     probesetInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'probeset', .xmap.types$probeset, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'probeset', .xmap.types$probeset, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'probeset', .xmap.types$probeset, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'probeset', .xmap.types$probeset, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'probeset', .xmap.types$probeset, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'probeset', .xmap.types$probeset, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'probesetInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -133,14 +146,10 @@ setMethod(  'probesetInRange', signature( x='data.frame' ), function( x, as.vect
   probesetInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'probesetInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    probesetInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, probesetInRange, as.vector=as.vector ) 
 } )
 setMethod(  'probesetInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    probesetInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, probesetInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$probeset.to.gene = "CALL probeset_to_gene( '${array}', '${ids}' )"
@@ -342,7 +351,20 @@ setMethod(  'probeInRange', signature( x='character' ),  function( x, start, end
     probeInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'probe', .xmap.types$probe, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'probe', .xmap.types$probe, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'probe', .xmap.types$probe, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'probe', .xmap.types$probe, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'probe', .xmap.types$probe, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'probe', .xmap.types$probe, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'probeInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -352,14 +374,10 @@ setMethod(  'probeInRange', signature( x='data.frame' ), function( x, as.vector=
   probeInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'probeInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    probeInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, probeInRange, as.vector=as.vector ) 
 } )
 setMethod(  'probeInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    probeInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, probeInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$probe.to.hit = "CALL probe_to_hit( '${array}', '${ids}' )"
@@ -405,7 +423,20 @@ setMethod(  'proteinInRange', signature( x='character' ),  function( x, start, e
     proteinInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'protein', .xmap.types$protein, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'protein', .xmap.types$protein, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'protein', .xmap.types$protein, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'protein', .xmap.types$protein, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'protein', .xmap.types$protein, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'protein', .xmap.types$protein, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'proteinInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -415,14 +446,10 @@ setMethod(  'proteinInRange', signature( x='data.frame' ), function( x, as.vecto
   proteinInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'proteinInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    proteinInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, proteinInRange, as.vector=as.vector ) 
 } )
 setMethod(  'proteinInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    proteinInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, proteinInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$protein.to.domain = "CALL protein_to_domain( '${ids}' )"
@@ -486,7 +513,20 @@ setMethod(  'domainInRange', signature( x='character' ),  function( x, start, en
     domainInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'domain', .xmap.types$domain, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'domain', .xmap.types$domain, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'domain', .xmap.types$domain, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'domain', .xmap.types$domain, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'domain', .xmap.types$domain, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'domain', .xmap.types$domain, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'domainInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -496,14 +536,10 @@ setMethod(  'domainInRange', signature( x='data.frame' ), function( x, as.vector
   domainInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'domainInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    domainInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, domainInRange, as.vector=as.vector ) 
 } )
 setMethod(  'domainInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    domainInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, domainInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$domain.to.protein = "CALL domain_to_protein( '${ids}' )"
@@ -580,7 +616,20 @@ setMethod(  'geneInRange', signature( x='character' ),  function( x, start, end,
     geneInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'gene', .xmap.types$gene, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'gene', .xmap.types$gene, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'gene', .xmap.types$gene, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'gene', .xmap.types$gene, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'gene', .xmap.types$gene, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'gene', .xmap.types$gene, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'geneInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -590,14 +639,10 @@ setMethod(  'geneInRange', signature( x='data.frame' ), function( x, as.vector=F
   geneInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'geneInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    geneInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, geneInRange, as.vector=as.vector ) 
 } )
 setMethod(  'geneInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    geneInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, geneInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$gene.to.transcript = "CALL gene_to_transcript( '${ids}' )"
@@ -690,7 +735,20 @@ setMethod(  'transcriptInRange', signature( x='character' ),  function( x, start
     transcriptInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'transcript', .xmap.types$transcript, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'transcript', .xmap.types$transcript, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'transcript', .xmap.types$transcript, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'transcript', .xmap.types$transcript, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'transcript', .xmap.types$transcript, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'transcript', .xmap.types$transcript, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'transcriptInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -700,14 +758,10 @@ setMethod(  'transcriptInRange', signature( x='data.frame' ), function( x, as.ve
   transcriptInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'transcriptInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    transcriptInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, transcriptInRange, as.vector=as.vector ) 
 } )
 setMethod(  'transcriptInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    transcriptInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, transcriptInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$transcript.to.gene = "CALL transcript_to_gene( '${ids}' )"
@@ -809,7 +863,20 @@ setMethod(  'exonInRange', signature( x='character' ),  function( x, start, end,
     exonInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'exon', .xmap.types$exon, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'exon', .xmap.types$exon, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'exon', .xmap.types$exon, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'exon', .xmap.types$exon, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'exon', .xmap.types$exon, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'exon', .xmap.types$exon, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'exonInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -819,14 +886,10 @@ setMethod(  'exonInRange', signature( x='data.frame' ), function( x, as.vector=F
   exonInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'exonInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    exonInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, exonInRange, as.vector=as.vector ) 
 } )
 setMethod(  'exonInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    exonInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, exonInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$exon.to.gene = "CALL exon_to_gene( '${ids}' )"
@@ -881,7 +944,20 @@ setMethod(  'estGeneInRange', signature( x='character' ),  function( x, start, e
     estGeneInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'est_gene', .xmap.types$est_gene, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'est_gene', .xmap.types$est_gene, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'est_gene', .xmap.types$est_gene, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'est_gene', .xmap.types$est_gene, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'est_gene', .xmap.types$est_gene, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'est_gene', .xmap.types$est_gene, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'estGeneInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -891,14 +967,10 @@ setMethod(  'estGeneInRange', signature( x='data.frame' ), function( x, as.vecto
   estGeneInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'estGeneInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    estGeneInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, estGeneInRange, as.vector=as.vector ) 
 } )
 setMethod(  'estGeneInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    estGeneInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, estGeneInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$est_gene.to.est_transcript = "CALL est_gene_to_est_transcript( '${ids}' )"
@@ -953,7 +1025,20 @@ setMethod(  'estTranscriptInRange', signature( x='character' ),  function( x, st
     estTranscriptInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'est_transcript', .xmap.types$est_transcript, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'est_transcript', .xmap.types$est_transcript, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'est_transcript', .xmap.types$est_transcript, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'est_transcript', .xmap.types$est_transcript, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'est_transcript', .xmap.types$est_transcript, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'est_transcript', .xmap.types$est_transcript, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'estTranscriptInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -963,14 +1048,10 @@ setMethod(  'estTranscriptInRange', signature( x='data.frame' ), function( x, as
   estTranscriptInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'estTranscriptInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    estTranscriptInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, estTranscriptInRange, as.vector=as.vector ) 
 } )
 setMethod(  'estTranscriptInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    estTranscriptInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, estTranscriptInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$est_transcript.to.est_gene = "CALL est_transcript_to_est_gene( '${ids}' )"
@@ -1025,7 +1106,20 @@ setMethod(  'estExonInRange', signature( x='character' ),  function( x, start, e
     estExonInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'est_exon', .xmap.types$est_exon, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'est_exon', .xmap.types$est_exon, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'est_exon', .xmap.types$est_exon, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'est_exon', .xmap.types$est_exon, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'est_exon', .xmap.types$est_exon, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'est_exon', .xmap.types$est_exon, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'estExonInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -1035,14 +1129,10 @@ setMethod(  'estExonInRange', signature( x='data.frame' ), function( x, as.vecto
   estExonInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'estExonInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    estExonInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, estExonInRange, as.vector=as.vector ) 
 } )
 setMethod(  'estExonInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    estExonInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, estExonInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$est_exon.to.est_gene = "CALL est_exon_to_est_gene( '${ids}' )"
@@ -1097,7 +1187,20 @@ setMethod(  'predictionTranscriptInRange', signature( x='character' ),  function
     predictionTranscriptInRange( data.frame( chr=x, start=start, end=end, strand=strand ), as.vector=as.vector )
   }
   else {
-    .range.call( x, start, end, strand, 'prediction_transcript', .xmap.types$prediction_transcript, as.vector=as.vector )
+    if( is.na( strand ) || strand == 0 ) {
+      if( as.vector == 'data.frame' || ( as.vector == FALSE && !.usegranges() ) ) {
+        rbind( .range.call( x, start, end,  1, 'prediction_transcript', .xmap.types$prediction_transcript, as.vector=as.vector ),
+               .range.call( x, start, end, -1, 'prediction_transcript', .xmap.types$prediction_transcript, as.vector=as.vector ) )
+      }
+      else {
+        .fwd = .range.call( x, start, end,  1, 'prediction_transcript', .xmap.types$prediction_transcript, as.vector=as.vector )
+        .rev = .range.call( x, start, end, -1, 'prediction_transcript', .xmap.types$prediction_transcript, as.vector=as.vector )
+        if( is.null( .fwd ) ) .rev else if( is.null( .rev ) ) .fwd else c( .fwd, .rev )
+      }
+    }
+    else {
+      .range.call( x, start, end, strand, 'prediction_transcript', .xmap.types$prediction_transcript, as.vector=as.vector )
+    }
   }
 } )
 setMethod(  'predictionTranscriptInRange', signature( x='factor' ),     function( x, start, end, strand, ..., as.vector=FALSE ) {
@@ -1107,14 +1210,10 @@ setMethod(  'predictionTranscriptInRange', signature( x='data.frame' ), function
   predictionTranscriptInRange( .data.frame.to.rangeddata( x ), as.vector=as.vector )
 } )
 setMethod(  'predictionTranscriptInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    predictionTranscriptInRange( chr, start, end, strand, as.vector=as.vector ) 
-  } )
+  annmapRangeApply( x, predictionTranscriptInRange, as.vector=as.vector ) 
 } )
 setMethod(  'predictionTranscriptInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
-  annmapRangeApply( x, function( chr, start, end, strand ) {
-    predictionTranscriptInRange( chr, start, end, strand, as.vector=as.vector )
-  } )
+  annmapRangeApply( x, predictionTranscriptInRange, as.vector=as.vector )
 } )
 
 .xmap.queries$prediction_transcript.to.prediction_exon = "CALL prediction_transcript_to_prediction_exon( '${ids}' )"

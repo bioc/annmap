@@ -17,7 +17,7 @@
   generateBridgeData( xrange, bamFiles, colours=NULL, names=NULL )
   ngsTraceScale( vector.of.xbams.and.ybams )
   ngsTraceLabel( rle.data )
-  ngsTracePlotter( rle.data, start, end, ylim, trace.label.properties=list(), smoothing.function=function( rle, ... ) { runmean( rle, k=1001, endrule='constant' ) },
+  ngsTracePlotter( rle.data, start, end, ylim, trace.label.properties=list(), smoothing.function=function( rle, ... ) { IRanges::runmean( rle, k=1001, endrule='constant' ) },
                      trace.clip='inherit', trace.draw.scale=FALSE, trace.bor='transparent', trace.pad=c(0,0), ... )
 
   # Plotting Methods

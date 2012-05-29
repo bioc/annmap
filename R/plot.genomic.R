@@ -1,15 +1,5 @@
 .fetch.genes.for.range = function( pos, drop.partial.genes=FALSE, ... ) {
-  if( class( pos ) == 'RangedData' ) {
-    .fn = space
-  }
-  else if( class( pos ) == 'GRanges' ) {
-    .fn = seqnames
-  }
-  else {
-    stop( 'Expected RangedData or GRanges for .fetch.genes.in.range' )
-  }
-  .genes = rbind( geneInRange( as.character( .fn( pos ) ), start( pos ), end( pos ), 1, as.vector='data.frame' ),
-                  geneInRange( as.character( .fn( pos ) ), start( pos ), end( pos ), -1, as.vector='data.frame' ) )
+  .genes = geneInRange( pos, as.vector='data.frame' )
   if( !is.null( .genes ) ) {
     .genes = .genes[with(.genes, order( start )),]
     if( drop.partial.genes ) {
@@ -195,7 +185,7 @@ genomicPlot = function( xrange,               # An IRanges object representing t
     .genes = .get.correct.column( 'gene', .genes )
     .genes = geneDetails( .genes, as.data.frame=T )
   }
-  .strand = if( class( xrange ) == 'GRanges' ) strandAsInteger( xrange ) else xrange$strand
+  .strand = if( class( xrange ) == 'GRanges' ) strandAsInteger( xrange ) else { if( xrange$strand == 0 ) NULL else xrange$strand }
   if( !is.null( .genes ) &&
       ( ( class( xrange ) == 'GRanges' && !is.na( .strand ) ) ||
         ( class( xrange ) != 'GRanges' && !is.null( .strand ) ) ) && 
@@ -273,12 +263,22 @@ genomicPlot = function( xrange,               # An IRanges object representing t
   }
 
   # Build our grid viewport and push it in
-  .lh = c( top=padding.lines,
-           fwd=if( is.null( .strand ) || is.na( .strand ) || ( as.numeric( .strand ) == 1 ) || draw.opposite.strand ) { if( invert.strands ) .genes$rev.height + 2 else .genes$fwd.height + 2 } else 0,
-           scagap=if( draw.scale ) 1.5 else 0,
-           sca=if( draw.scale ) 1 else 0,
-           rev=if( is.null( .strand ) || is.na( .strand ) || ( as.numeric( .strand ) == -1 ) || draw.opposite.strand ) { if( invert.strands ) .genes$fwd.height + 2 else .genes$rev.height + 2 } else 0,
-           bot=padding.lines )
+  .lh = if( !is.null( .genes ) ) {
+    c( top=padding.lines,
+       fwd=if( is.null( .strand ) || is.na( .strand ) || ( as.numeric( .strand ) == 1 ) || draw.opposite.strand ) { if( invert.strands ) .genes$rev.height + 2 else .genes$fwd.height + 2 } else 0,
+       scagap=if( draw.scale ) 1.5 else 0,
+       sca=if( draw.scale ) 1 else 0,
+       rev=if( is.null( .strand ) || is.na( .strand ) || ( as.numeric( .strand ) == -1 ) || draw.opposite.strand ) { if( invert.strands ) .genes$fwd.height + 2 else .genes$rev.height + 2 } else 0,
+       bot=padding.lines )
+  }
+  else {
+    c( top=padding.lines,
+       fwd=if( is.null( .strand ) || is.na( .strand ) || ( as.numeric( .strand ) == 1  ) || draw.opposite.strand ) 1 else 0,
+       scagap=if( draw.scale ) 1.5 else 0,
+       sca=if( draw.scale ) 1 else 0,
+       rev=if( is.null( .strand ) || is.na( .strand ) || ( as.numeric( .strand ) == -1 ) || draw.opposite.strand ) 1 else 0,
+       bot=padding.lines )
+  }
   .lt = c( top=if( padding.lines > 0 ) 'lines' else 'null',
            fwd='null',
            scagap=if( draw.scale ) 'lines' else 'null',

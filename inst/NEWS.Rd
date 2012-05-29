@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 0.99.1}{
+  \itemize{
+    \item{BUG}{ ANNMAP-101 ngsBridgePlot called with no genes in range had a huge border. }
+    \item{BUG}{ ANNMAP-106 Empty ngsBridgePlot trace should draw line at 0. }
+    \item{BUG}{ ANNMAP-107 transcriptToCodingRange was very slow. }
+  }
+}
 \section{Changes in version 0.99.0}{
   \itemize{
     \item{NEW}{ Initial Release to Bioconductor }

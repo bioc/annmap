@@ -1,7 +1,7 @@
 import( GenomicRanges )
 import( methods )
 import( grid )
-importFrom( IRanges, unlist )
+importFrom( IRanges, unlist, runmean )
 importFrom( BiocGenerics, setdiff, rbind )
 importFrom( genefilter, rowttests )
 importFrom( lattice, draw.colorkey, panel.levelplot, level.colors, panel.grid, panel.fill )

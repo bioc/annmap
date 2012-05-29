@@ -1,5 +1,5 @@
 ngsTracePlotter = function( rle.data, start, end, ylim, trace.label.properties=list(),
-                            smoothing.function=function( rle, ... ) { runmean( rle, k=1001, endrule='constant' ) }, 
+                            smoothing.function=function( rle, ... ) { IRanges::runmean( rle, k=1001, endrule='constant' ) }, 
                             trace.clip='inherit', trace.draw.scale=FALSE, trace.bor='transparent', trace.pad=c(0,0), ... ) {
   .y = 0
   local.draw = function( start, rle, col, alpha.mod=1.0, mult=1, local.draw.outline=T, local.draw.fill=T, ... ) {
@@ -102,10 +102,10 @@ ngsTraceScale = function( vector.of.xbams.and.ybams ) {
         0
       }
       else if( !is.list( d$rle ) ) { # Just a single strand
-        min( runValue( d$rle ) )
+        if( length( d$rle ) == 0 ) 0 else min( runValue( d$rle ) )
       }
       else { # Two strands '+' and '-'
-        -max( runValue( d$rle$'-' ) )
+        if( length( d$rle$'-' ) == 0 ) 0 else -max( runValue( d$rle$'-' ) )
       }
      } ) ) ),
    max( unlist( lapply( vector.of.xbams.and.ybams, function( d ) {
@@ -113,10 +113,10 @@ ngsTraceScale = function( vector.of.xbams.and.ybams ) {
         0
       }
       else if( !is.list( d$rle ) ) { # Just a single strand
-        max( runValue( d$rle ) )
+        if( length( d$rle ) == 0 ) 0 else max( runValue( d$rle ) )
       }
       else { # Two strands '+' and '-'
-        max( runValue( d$rle$'+' ) )
+        if( length( d$rle$'+' ) == 0 ) 0 else max( runValue( d$rle$'+' ) )
       }
    } ) ) ) )
 }
@@ -143,7 +143,12 @@ convertBamToRle = function( bam.file.name, chr, start, end, chr.name.mapping=fun
   BAM = BAM[ with( BAM, order( start ) ), ]
   sapply( c( '+', '-' ), function( str ) {
     d = BAM[ as.character( BAM[,2] ) == str, ]
-    coverage( as( cbind( d, end=( d$start + d$width - 1 ) ), 'RangedData' ) )[[ chr ]]
+    ret = coverage( as( cbind( d, end=( d$start + d$width - 1 ) ), 'RangedData' ) )[[ chr ]]
+    if( length( ret ) == 0 ) {
+      # Create an Rle object the correct length rather than an empty one
+      ret = Rle( end, 0 )
+    }
+    ret
   }, simplify=F )
 }
 
@@ -151,7 +156,7 @@ generateBridgeData = function( xrange, bamFiles, colours=NULL, names=NULL ) {
   if( is.null( names ) ) names = paste( "Track", seq_along( bamFiles ) )
   if( is.null( colours ) ) colours = rainbow( length( bamFiles ), v=0.5, s=0.5 )
   apply( cbind( bamFiles, colours, names ), 1, function( r ) {
-    list( name=r$names, col=r$colours, rle=convertBamToRle( r$bamFiles, as.character( seqnames( xrange ) ), start( xrange ), end( xrange ) ) )
+    list( name=r[ 'names' ], col=r['colours'], rle=convertBamToRle( r['bamFiles'], as.character( seqnames( xrange ) ), start( xrange ), end( xrange ) ) )
   } )
 }
 
@@ -231,7 +236,7 @@ ngsBridgePlot = function( xrange, data=list(),
         }
       }
       else {
-        xrange$strand
+        if( xrange$strand == 0 ) NULL else xrange$strand
       }
       .filtered.gene.names = if( is.null( .strand ) ) .genes$stable_id else .genes[ .genes$strand==.strand, ]$stable_id
       if( !is.null( exon.depth.plot ) ) {
@@ -265,7 +270,12 @@ ngsBridgePlot = function( xrange, data=list(),
         if( is.list( element$rle ) ) {
           # Single strand data... Just return it as is
           if( trace.match.strand == TRUE ) {
-            strand = as.character( strand( xrange ) )
+            strand = if( class( xrange ) == 'GRanges' ) {
+              as.character( strand( xrange ) )
+            }
+            else {
+              if( xrange$strand == 0 ) '*' else if( xrange$strand > 0 ) '+' else '-'
+            }
             if( strand != '*' ) {
               element$rle = element$rle[[ strand ]]
             }

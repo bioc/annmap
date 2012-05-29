@@ -1,6 +1,5 @@
-.single.transcript.to.utr.range = function( id, end=c( 'both', '5', '3' ) ) {
+.single.transcript.to.utr.range = function( transcript, end=c( 'both', '5', '3' ) ) {
   end = match.arg( end )
-  transcript = transcriptDetails( id, as.data.frame=TRUE )
   space = as.character( transcript$chromosome_name )
   strand = as.numeric( transcript$strand )
 
@@ -8,16 +7,30 @@
 
   if( is.na( transcript$translation_start_exon ) ) {
     if( end == 'both' ) {
-      return( data.frame( IN1=c( id, id ), chromosome_name=c( space, space ), start=c( transcript$start, NA ),
-                          end=c( transcript$end, NA ), strand=c( strand, strand ), prime=c( '5', '3' ),
-                          phase=c( NA, NA ), translated=c( FALSE, FALSE ), stringsAsFactors=F ) )
+      return( data.frame( IN1=c( transcript$stable_id, transcript$stable_id ),
+                          chromosome_name=c( space, space ),
+                          start=c( transcript$start, NA ),
+                          end=c( transcript$end, NA ),
+                          strand=c( strand, strand ),
+                          prime=c( '5', '3' ),
+                          phase=c( NA, NA ),
+                          translated=c( FALSE, FALSE ),
+                          stringsAsFactors=F ) )
     }
     else {
-      return( data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=transcript$end, strand=strand, prime=end, phase=NA, translated=F, stringsAsFactors=F ) )
+      return( data.frame( IN1=transcript$stable_id,
+                          chromosome_name=space,
+                          start=transcript$start,
+                          end=transcript$end,
+                          strand=strand,
+                          prime=end,
+                          phase=NA,
+                          translated=F,
+                          stringsAsFactors=F ) )
     }
   }
 
-  exons = transcriptToExon( id, as.vector='data.frame' )
+  exons = transcriptToExon( transcript$stable_id, as.vector='data.frame' )
   exons[,'sequence'] = NULL
 
   exons = exons[ order( exons$start, decreasing=strand < 0 ), ]
@@ -37,22 +50,62 @@
   if( end %in% c( '5', 'both' ) ) {
     if( sidx == 1 && transcript$translation_start == 1 ) {
       # No 5' UTR
-      ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=NA, end=NA, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+      ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                    chromosome_name=space,
+                                    start=NA,
+                                    end=NA,
+                                    strand=strand,
+                                    prime='5',
+                                    phase=exons$phase[ sidx ],
+                                    translated=T,
+                                    stringsAsFactors=F ) )
     }
     else if( transcript$translation_start == 1 ) {
       if( strand > 0 ) {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$start[ sidx ] - 1, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=transcript$start,
+                                      end=exons$start[ sidx ] - 1,
+                                      strand=strand,
+                                      prime='5',
+                                      phase=exons$phase[ sidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
       else {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$end[ sidx ] + 1, end=transcript$end, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=exons$end[ sidx ] + 1,
+                                      end=transcript$end,
+                                      strand=strand,
+                                      prime='5',
+                                      phase=exons$phase[ sidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
     }
     else {
       if( strand > 0 ) {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$start[ sidx ] + transcript$translation_start - 2, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=transcript$start,
+                                      end=exons$start[ sidx ] + transcript$translation_start - 2,
+                                      strand=strand,
+                                      prime='5',
+                                      phase=exons$phase[ sidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
       else {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$end[ sidx ] - transcript$translation_start + 2, end=transcript$end, strand=strand, prime='5', phase=exons$phase[ sidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=exons$end[ sidx ] - transcript$translation_start + 2,
+                                      end=transcript$end,
+                                      strand=strand,
+                                      prime='5',
+                                      phase=exons$phase[ sidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
     }
   }
@@ -60,23 +113,63 @@
   if( end %in% c( '3', 'both' ) ) {
     if( eidx == length( exons$stable_id ) && transcript$translation_end == exons$end[ eidx ] - exons$start[ eidx ] + 1 ) {
       # No 3' UTR
-      ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=NA, end=NA, strand=strand, prime='3', phase=exons$end_phase[ eidx ], translated=T, stringsAsFactors=F ) )
+      ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                    chromosome_name=space,
+                                    start=NA,
+                                    end=NA,
+                                    strand=strand,
+                                    prime='3',
+                                    phase=exons$end_phase[ eidx ],
+                                    translated=T,
+                                    stringsAsFactors=F ) )
     }
     else if( transcript$translation_end == exons$end[ eidx ] - exons$start[ eidx ] + 1 ) {
       # Just the last exons
       if( strand > 0 ) {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$end[ eidx ] + 1, end=transcript$end, strand=strand, prime='3', phase=exons$end_phase[ eidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=exons$end[ eidx ] + 1,
+                                      end=transcript$end,
+                                      strand=strand,
+                                      prime='3',
+                                      phase=exons$end_phase[ eidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
       else {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$start[ eidx ] - 1, strand=strand, prime='3', phase=exons$end_phase[ eidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=transcript$start,
+                                      end=exons$start[ eidx ] - 1,
+                                      strand=strand,
+                                      prime='3',
+                                      phase=exons$end_phase[ eidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
     }
     else {
       if( strand > 0 ) {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=exons$start[ eidx ] + transcript$translation_end, end=transcript$end, strand=strand, prime='3', phase=exons$phase[ eidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=exons$start[ eidx ] + transcript$translation_end,
+                                      end=transcript$end,
+                                      strand=strand,
+                                      prime='3',
+                                      phase=exons$phase[ eidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
       else {
-        ret = rbind( ret, data.frame( IN1=id, chromosome_name=space, start=transcript$start, end=exons$end[ eidx ] - transcript$translation_end, strand=strand, prime='3', phase=exons$phase[ eidx ], translated=T, stringsAsFactors=F ) )
+        ret = rbind( ret, data.frame( IN1=transcript$stable_id,
+                                      chromosome_name=space,
+                                      start=transcript$start,
+                                      end=exons$end[ eidx ] - transcript$translation_end,
+                                      strand=strand,
+                                      prime='3',
+                                      phase=exons$phase[ eidx ],
+                                      translated=T,
+                                      stringsAsFactors=F ) )
       }
     }
   }
@@ -88,8 +181,13 @@ transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=F
   if( is.null( ids ) ) {
     return( NULL )
   }
+  ids = transcriptDetails( ids, as.data.frame=T )
   end = match.arg( end )
-  ret = do.call( 'rbind', lapply( ids, function( id ) { .single.transcript.to.utr.range( id, end ) } ) )
+  .f = function( idx ) {
+    .single.transcript.to.utr.range( ids[ idx, ], end )
+  }
+  .data = lapply( seq_along( ids$stable_id ), .f )
+  ret = do.call( 'rbind', .data )
 
   if( as.data.frame == TRUE ) {
     return( ret )
@@ -119,9 +217,10 @@ transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.fram
   }
   end = match.arg( end )
   transcripts = transcriptDetails( ids, as.data.frame=TRUE )
+  utr.transcripts = transcriptToUtrRange( ids, end='both', as.data.frame=TRUE )
   .fn = function( idx ) {
     row = transcripts[ idx, ]
-    utr = transcriptToUtrRange( as.character( row$stable_id ), end='both', as.data.frame=TRUE )
+    utr = utr.transcripts[ utr.transcripts$IN1 == row$stable_id, ]
     phase = utr[ utr$prime == '5', ]$phase
     end.phase = utr[ utr$prime == '3', ]$phase
     if( end == '5' ) {

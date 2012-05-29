@@ -238,7 +238,7 @@ strandAsInteger = function( granges ) {
 annmapRangeApply = function( x, f, filter=c( chr="space", start="start", end="end", strand="strand" ),
     coerce=c( as.character, as.numeric, as.numeric, as.numeric ), ... ) {
   if( class( x ) != 'RangedData' && class( x ) != 'GRanges' ) {
-    stop( paste( 'x must be a RangedData object, not a', class( x ) ) )
+    stop( paste( 'x must be a GRanges or RangedData object, not a', class( x ) ) )
   }
   if( length( coerce ) != length( filter ) ) {
     stop( paste( "Each filter column should have a corresponding coercion function: coerce:length(", length(coerce), ") filter:length(", length( filter ), ")." ) )
@@ -249,6 +249,10 @@ annmapRangeApply = function( x, f, filter=c( chr="space", start="start", end="en
     x$strand = .str
   }
   framed.data             = as( x, "DataFrame" )
+  .missing = filter[ !( filter %in% colnames( framed.data ) ) ]
+  if( length( .missing ) > 0 ) {
+    stop( paste( 'Missing filter fields in x.  Cannot find', paste( names( .missing ), .missing, sep='=', collapse=', ' ) ) )
+  }
   framed.data             = framed.data[,filter,drop=FALSE]
   colnames( framed.data ) = names( filter )
   r = lapply( seq_len( dim( framed.data )[1] ), function( i ) {
@@ -260,20 +264,25 @@ annmapRangeApply = function( x, f, filter=c( chr="space", start="start", end="en
   } )
   # Strip nulls
   r = r[ !sapply( r, is.null ) ]
-  clzz = unique( lapply( r, class ) )
-  if( length( clzz ) == 2 && is.list( r ) ) {
-    r = do.call( c, r )
-    clzz = unique( lapply( r, class ) )
+  if( length( r ) == 0 ) {
+    r = NULL
   }
-  if( length( clzz ) == 1 ) {
-    if( is.vector( r[[1]] ) ) {
+  else {
+    clzz = unique( lapply( r, class ) )
+    if( length( clzz ) == 2 && is.list( r ) ) {
       r = do.call( c, r )
+      clzz = unique( lapply( r, class ) )
     }
-    else if( clzz == 'GRanges' ) {
-      r = suppressWarnings( do.call( c, r ) ) # Need to supress, as we're probably looking at multipl chrs per result
-    }
-    else {
-      r = do.call( rbind, r )
+    if( length( clzz ) == 1 ) {
+      if( is.vector( r[[1]] ) ) {
+        r = do.call( c, r )
+      }
+      else if( clzz == 'GRanges' ) {
+        r = suppressWarnings( do.call( c, r ) ) # Need to supress, as we're probably looking at multipl chrs per result
+      }
+      else {
+        r = do.call( rbind, r )
+      }
     }
   }
   r
