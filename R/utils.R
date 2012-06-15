@@ -214,9 +214,11 @@
 
 geneToSymbol = function( ids ) {
   if( is.vector( ids ) ) {
-    ids = geneDetails( ids )
+    ids = geneDetails( ids, as.data.frame=TRUE )
   }
-  .attr( ids, 'symbol' )
+  ret = .attr( ids, 'symbol' )
+  names( ret ) = .attr( ids, .xmap.types$gene )
+  ret
 }
 
 allSymbols = function( as.vector=FALSE ) {

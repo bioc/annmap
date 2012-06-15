@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 0.99.2}{
+  \itemize{
+    \item{BUG}{ ANNMAP-109 geneToSymbol when passed a vector of gene IDs, returned the symbols in the order of the genes start location rather than the order the function was called with. }
+  }
+}
 \section{Changes in version 0.99.1}{
   \itemize{
     \item{BUG}{ ANNMAP-101 ngsBridgePlot called with no genes in range had a huge border. }

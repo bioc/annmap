@@ -198,6 +198,20 @@ test.ANNMAP.98 = function() {
   }
 }
 
+test.ANNMAP.109 = function() {
+  data = tryCatch( annmapConnect( "hs-test" ), error=function(e) { FALSE } )
+  if( length( data ) == 1 ) {
+    print( "Cannot find datasource 'hs-test', so skipping these tests." )
+  }
+  else {
+    a = geneToSymbol( c( 'ENSG00000164690', 'ENSG00000171862' ) )
+    b = geneDetails( c( 'ENSG00000164690', 'ENSG00000171862' ), as.data.frame=T )$symbol
+    checkTrue( length( a ) > 0, 'geneToSymbol should return data' )
+    checkTrue( length( b ) > 0, 'geneDetails$symbol should return data' )
+    checkTrue( all( a == b ), 'returned symbols should be in the same order' )
+  }
+}
+
 ###############################################################################
 ## Stupid test to make sure its working...
 ##
