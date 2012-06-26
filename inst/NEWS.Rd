@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 0.99.3}{
+  \itemize{
+    \item{BUG}{ ANNMAP-110 XXXInRange( NULL ) used to throw an error.  It now returns NULL. }
+  }
+}
 \section{Changes in version 0.99.2}{
   \itemize{
     \item{BUG}{ ANNMAP-109 geneToSymbol when passed a vector of gene IDs, returned the symbols in the order of the genes start location rather than the order the function was called with. }

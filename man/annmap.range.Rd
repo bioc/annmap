@@ -6,6 +6,7 @@
 \alias{domainInRange,GRanges-method}
 \alias{domainInRange,character-method}
 \alias{domainInRange,data.frame-method}
+\alias{domainInRange,NULL-method}
 \alias{domainInRange,factor-method}
 
 \alias{estExonInRange}
@@ -13,6 +14,7 @@
 \alias{estExonInRange,GRanges-method}
 \alias{estExonInRange,character-method}
 \alias{estExonInRange,data.frame-method}
+\alias{estExonInRange,NULL-method}
 \alias{estExonInRange,factor-method}
 
 \alias{estGeneInRange}
@@ -20,6 +22,7 @@
 \alias{estGeneInRange,GRanges-method}
 \alias{estGeneInRange,character-method}
 \alias{estGeneInRange,data.frame-method}
+\alias{estGeneInRange,NULL-method}
 \alias{estGeneInRange,factor-method}
 
 \alias{estTranscriptInRange}
@@ -27,6 +30,7 @@
 \alias{estTranscriptInRange,GRanges-method}
 \alias{estTranscriptInRange,character-method}
 \alias{estTranscriptInRange,data.frame-method}
+\alias{estTranscriptInRange,NULL-method}
 \alias{estTranscriptInRange,factor-method}
 
 \alias{exonInRange}
@@ -34,6 +38,7 @@
 \alias{exonInRange,GRanges-method}
 \alias{exonInRange,character-method}
 \alias{exonInRange,data.frame-method}
+\alias{exonInRange,NULL-method}
 \alias{exonInRange,factor-method}
 
 \alias{geneInRange}
@@ -41,6 +46,7 @@
 \alias{geneInRange,GRanges-method}
 \alias{geneInRange,character-method}
 \alias{geneInRange,data.frame-method}
+\alias{geneInRange,NULL-method}
 \alias{geneInRange,factor-method}
 
 \alias{predictionTranscriptInRange}
@@ -48,6 +54,7 @@
 \alias{predictionTranscriptInRange,GRanges-method}
 \alias{predictionTranscriptInRange,character-method}
 \alias{predictionTranscriptInRange,data.frame-method}
+\alias{predictionTranscriptInRange,NULL-method}
 \alias{predictionTranscriptInRange,factor-method}
 
 \alias{probesetInRange}
@@ -55,6 +62,7 @@
 \alias{probesetInRange,GRanges-method}
 \alias{probesetInRange,character-method}
 \alias{probesetInRange,data.frame-method}
+\alias{probesetInRange,NULL-method}
 \alias{probesetInRange,factor-method}
 
 \alias{probeInRange}
@@ -62,6 +70,7 @@
 \alias{probeInRange,GRanges-method}
 \alias{probeInRange,character-method}
 \alias{probeInRange,data.frame-method}
+\alias{probeInRange,NULL-method}
 \alias{probeInRange,factor-method}
 
 \alias{proteinInRange}
@@ -69,6 +78,7 @@
 \alias{proteinInRange,GRanges-method}
 \alias{proteinInRange,character-method}
 \alias{proteinInRange,data.frame-method}
+\alias{proteinInRange,NULL-method}
 \alias{proteinInRange,factor-method}
 
 \alias{transcriptInRange}
@@ -76,6 +86,7 @@
 \alias{transcriptInRange,GRanges-method}
 \alias{transcriptInRange,character-method}
 \alias{transcriptInRange,data.frame-method}
+\alias{transcriptInRange,NULL-method}
 \alias{transcriptInRange,factor-method}
 
 \title{
@@ -90,6 +101,7 @@
   \S4method{domainInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{domainInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{domainInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{domainInRange}{NULL}( x, as.vector=FALSE )
   \S4method{domainInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   estExonInRange( x, ..., as.vector = FALSE )
@@ -97,6 +109,7 @@
   \S4method{estExonInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{estExonInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{estExonInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{estExonInRange}{NULL}( x, as.vector=FALSE )
   \S4method{estExonInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   estGeneInRange( x, ..., as.vector = FALSE )
@@ -104,6 +117,7 @@
   \S4method{estGeneInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{estGeneInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{estGeneInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{estGeneInRange}{NULL}( x, as.vector=FALSE )
   \S4method{estGeneInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   estTranscriptInRange( x, ..., as.vector = FALSE )
@@ -111,6 +125,7 @@
   \S4method{estTranscriptInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{estTranscriptInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{estTranscriptInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{estTranscriptInRange}{NULL}( x, as.vector=FALSE )
   \S4method{estTranscriptInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   exonInRange( x, ..., as.vector = FALSE )
@@ -118,6 +133,7 @@
   \S4method{exonInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{exonInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{exonInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{exonInRange}{NULL}( x, as.vector=FALSE )
   \S4method{exonInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   geneInRange( x, ..., as.vector = FALSE )
@@ -125,6 +141,7 @@
   \S4method{geneInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{geneInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{geneInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{geneInRange}{NULL}( x, as.vector=FALSE )
   \S4method{geneInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   predictionTranscriptInRange( x, ..., as.vector = FALSE )
@@ -132,6 +149,7 @@
   \S4method{predictionTranscriptInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{predictionTranscriptInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{predictionTranscriptInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{predictionTranscriptInRange}{NULL}( x, as.vector=FALSE )
   \S4method{predictionTranscriptInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   probesetInRange( x, ..., as.vector = FALSE )
@@ -139,6 +157,7 @@
   \S4method{probesetInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{probesetInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{probesetInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{probesetInRange}{NULL}( x, as.vector=FALSE )
   \S4method{probesetInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   probeInRange( x, ..., as.vector = FALSE )
@@ -146,6 +165,7 @@
   \S4method{probeInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{probeInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{probeInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{probeInRange}{NULL}( x, as.vector=FALSE )
   \S4method{probeInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   proteinInRange( x, ..., as.vector = FALSE )
@@ -153,6 +173,7 @@
   \S4method{proteinInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{proteinInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{proteinInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{proteinInRange}{NULL}( x, as.vector=FALSE )
   \S4method{proteinInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 
   transcriptInRange( x, ..., as.vector = FALSE )
@@ -160,11 +181,13 @@
   \S4method{transcriptInRange}{RangedData}( x, as.vector=FALSE )
   \S4method{transcriptInRange}{character}( x, start, end, strand, ..., as.vector=FALSE )
   \S4method{transcriptInRange}{data.frame}( x, as.vector=FALSE )
+  \S4method{transcriptInRange}{NULL}( x, as.vector=FALSE )
   \S4method{transcriptInRange}{factor}( x, start, end, strand, ..., as.vector=FALSE )
 }
 \arguments{
   \item{as.vector}{ If \code{TRUE} returns a vector of database identifiers. If \code{FALSE} returns a \code{\link{GRanges}} object containing detailed annotation. }
-  \item{x}{ The name of the chromosome of interest -- in the case of the \code{factor} or \code{character} variants), or a \code{GRanges} object  or \code{data.frame} containing location information. In the case of a \code{data.frame}, columns must be named \code{chr} or \code{chromosome_name}, followed by \code{start}, \code{end} and \code{strand}.  RangedData objects must contain a strand in their meta-data. And strand must be \code{1} or \code{-1} in all cases arart from \code{GRanges} where it obviously has to be \code{+} or \code{-}. }
+  \item{x}{ The name of the chromosome of interest -- in the case of the \code{factor} or \code{character} variants), or a \code{GRanges} object  or \code{data.frame} containing location information. In the case of a \code{data.frame}, columns must be named \code{chr} or \code{chromosome_name}, followed by \code{start}, \code{end} and \code{strand}.  RangedData objects must contain a strand in their meta-data. And strand must be \code{1} or \code{-1} in all cases arart from \code{GRanges} where it obviously has to be \code{+} or \code{-}.
+  All of the \code{NULL} variants simply return \code{NULL}, in-keeping with the fluent style of the rest of the package. }
   \item{start}{ Start of the region }
   \item{end}{ End of the region }
   \item{strand}{ 1 == top stand, -1 == bottom strand }
