@@ -148,6 +148,9 @@ setMethod(  'probesetInRange', signature( x='data.frame' ), function( x, as.vect
 setMethod(  'probesetInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, probesetInRange, as.vector=as.vector ) 
 } )
+setMethod(  'probesetInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
+} )
 setMethod(  'probesetInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, probesetInRange, as.vector=as.vector )
 } )
@@ -376,6 +379,9 @@ setMethod(  'probeInRange', signature( x='data.frame' ), function( x, as.vector=
 setMethod(  'probeInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, probeInRange, as.vector=as.vector ) 
 } )
+setMethod(  'probeInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
+} )
 setMethod(  'probeInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, probeInRange, as.vector=as.vector )
 } )
@@ -447,6 +453,9 @@ setMethod(  'proteinInRange', signature( x='data.frame' ), function( x, as.vecto
 } )
 setMethod(  'proteinInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, proteinInRange, as.vector=as.vector ) 
+} )
+setMethod(  'proteinInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
 } )
 setMethod(  'proteinInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, proteinInRange, as.vector=as.vector )
@@ -537,6 +546,9 @@ setMethod(  'domainInRange', signature( x='data.frame' ), function( x, as.vector
 } )
 setMethod(  'domainInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, domainInRange, as.vector=as.vector ) 
+} )
+setMethod(  'domainInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
 } )
 setMethod(  'domainInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, domainInRange, as.vector=as.vector )
@@ -640,6 +652,9 @@ setMethod(  'geneInRange', signature( x='data.frame' ), function( x, as.vector=F
 } )
 setMethod(  'geneInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, geneInRange, as.vector=as.vector ) 
+} )
+setMethod(  'geneInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
 } )
 setMethod(  'geneInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, geneInRange, as.vector=as.vector )
@@ -759,6 +774,9 @@ setMethod(  'transcriptInRange', signature( x='data.frame' ), function( x, as.ve
 } )
 setMethod(  'transcriptInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, transcriptInRange, as.vector=as.vector ) 
+} )
+setMethod(  'transcriptInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
 } )
 setMethod(  'transcriptInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, transcriptInRange, as.vector=as.vector )
@@ -888,6 +906,9 @@ setMethod(  'exonInRange', signature( x='data.frame' ), function( x, as.vector=F
 setMethod(  'exonInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, exonInRange, as.vector=as.vector ) 
 } )
+setMethod(  'exonInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
+} )
 setMethod(  'exonInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, exonInRange, as.vector=as.vector )
 } )
@@ -968,6 +989,9 @@ setMethod(  'estGeneInRange', signature( x='data.frame' ), function( x, as.vecto
 } )
 setMethod(  'estGeneInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, estGeneInRange, as.vector=as.vector ) 
+} )
+setMethod(  'estGeneInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
 } )
 setMethod(  'estGeneInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, estGeneInRange, as.vector=as.vector )
@@ -1050,6 +1074,9 @@ setMethod(  'estTranscriptInRange', signature( x='data.frame' ), function( x, as
 setMethod(  'estTranscriptInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, estTranscriptInRange, as.vector=as.vector ) 
 } )
+setMethod(  'estTranscriptInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
+} )
 setMethod(  'estTranscriptInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, estTranscriptInRange, as.vector=as.vector )
 } )
@@ -1131,6 +1158,9 @@ setMethod(  'estExonInRange', signature( x='data.frame' ), function( x, as.vecto
 setMethod(  'estExonInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, estExonInRange, as.vector=as.vector ) 
 } )
+setMethod(  'estExonInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
+} )
 setMethod(  'estExonInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, estExonInRange, as.vector=as.vector )
 } )
@@ -1211,6 +1241,9 @@ setMethod(  'predictionTranscriptInRange', signature( x='data.frame' ), function
 } )
 setMethod(  'predictionTranscriptInRange', signature( x='RangedData' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, predictionTranscriptInRange, as.vector=as.vector ) 
+} )
+setMethod(  'predictionTranscriptInRange', signature( x='NULL' ), function( x, as.vector=FALSE ) {
+  return( NULL )
 } )
 setMethod(  'predictionTranscriptInRange', signature( x='GRanges' ), function( x, as.vector=FALSE ) {
   annmapRangeApply( x, predictionTranscriptInRange, as.vector=as.vector )
