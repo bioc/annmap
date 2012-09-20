@@ -1,4 +1,4 @@
-.single.transcript.to.utr.range = function( transcript, end=c( 'both', '5', '3' ) ) {
+.single.transcript.to.utr.range = function( transcript, end=c( 'both', '5', '3' ), on.translation.error ) {
   end = match.arg( end )
   space = as.character( transcript$chromosome_name )
   strand = as.numeric( transcript$strand )
@@ -173,10 +173,21 @@
       }
     }
   }
+  # Check for negative width entries
+  clamper = function( index, data, invalidfn ) {
+    row = data[ index, ]
+    if( ( !is.na( row$start ) && !is.na( row$end ) ) && ( row$end < row$start ) ) {
+      invalidfn( paste( 'Translation falls off the ', row$prime, "' end of an exon for ", row$IN1, sep='' ) )
+      row$start = NA
+      row$end = NA
+    }
+    row
+  }
+  ret = do.call( 'rbind', lapply( seq_along( ret$IN1 ), clamper, data=ret, invalidfn=on.translation.error ) )
   return( ret )
 }
 
-transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE ) {
+transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE, on.translation.error=stop ) {
   ids = .get.correct.column( 'transcript', ids )
   if( is.null( ids ) ) {
     return( NULL )
@@ -184,7 +195,7 @@ transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=F
   ids = transcriptDetails( ids, as.data.frame=T )
   end = match.arg( end )
   .f = function( idx ) {
-    .single.transcript.to.utr.range( ids[ idx, ], end )
+    .single.transcript.to.utr.range( ids[ idx, ], end, on.translation.error )
   }
   .data = lapply( seq_along( ids$stable_id ), .f )
   ret = do.call( 'rbind', .data )
@@ -210,14 +221,14 @@ transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=F
   }
 }
 
-transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE ) {
+transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE, on.translation.error=stop ) {
   ids = .get.correct.column( 'transcript', ids )
   if( is.null( ids ) ) {
     return( NULL )
   }
   end = match.arg( end )
   transcripts = transcriptDetails( ids, as.data.frame=TRUE )
-  utr.transcripts = transcriptToUtrRange( ids, end='both', as.data.frame=TRUE )
+  utr.transcripts = transcriptToUtrRange( ids, end='both', as.data.frame=TRUE, on.translation.error )
   .fn = function( idx ) {
     row = transcripts[ idx, ]
     utr = utr.transcripts[ utr.transcripts$IN1 == row$stable_id, ]
@@ -259,7 +270,7 @@ transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.fram
   }
 }
 
-.probeset.filtering = function( probesets, transcripts, end=c( 'both', '5', '3' ), fn ) {
+.probeset.filtering = function( probesets, transcripts, end=c( 'both', '5', '3' ), fn, on.translation.error=stop ) {
   if( missing( probesets ) ) probesets = NULL
   if( missing( transcripts ) ) transcripts = NULL
   end = match.arg( end )
@@ -296,7 +307,7 @@ transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.fram
     transcripts = unique( tpts$'stable_id' )
   }
   probesets = unreliable( probesets, exclude=TRUE )
-  ranges = fn( transcripts, end=end )
+  ranges = fn( transcripts, end=end, FALSE, on.translation.error )
   if( is.null( ranges ) ) {
     return( NULL )
   }
@@ -315,10 +326,10 @@ transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.fram
   }
 }
 
-utrProbesets = function( probesets, transcripts, end=c( 'both', '5', '3' ) ) {
-  .probeset.filtering( probesets, transcripts, end, transcriptToUtrRange )
+utrProbesets = function( probesets, transcripts, end=c( 'both', '5', '3' ), on.translation.error=stop ) {
+  .probeset.filtering( probesets, transcripts, end, transcriptToUtrRange, on.translation.error )
 }
 
-codingProbesets = function( probesets, transcripts, end=c( 'both', '5', '3' ) ) {
-  .probeset.filtering( probesets, transcripts, end, transcriptToCodingRange )
+codingProbesets = function( probesets, transcripts, end=c( 'both', '5', '3' ), on.translation.error=stop ) {
+  .probeset.filtering( probesets, transcripts, end, transcriptToCodingRange, on.translation.error )
 }

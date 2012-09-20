@@ -3,6 +3,7 @@
 \section{Changes in version 0.99.3}{
   \itemize{
     \item{BUG}{ ANNMAP-110 XXXInRange( NULL ) used to throw an error.  It now returns NULL. }
+    \item{BUG}{ ANNMAP-111 Fix crash when translation data is incorrect and causes us to fall off the translation exon when finding the UTR/Coding range. }
   }
 }
 \section{Changes in version 0.99.2}{

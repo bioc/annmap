@@ -10,10 +10,10 @@
   Functions to deal with coding regions and UTRs
 }
 \usage{
-  transcriptToUtrRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE )
-  transcriptToCodingRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE )
-  utrProbesets( probesets, transcripts, end=c( "both", "5", "3" ) )
-  codingProbesets( probesets, transcripts, end=c( "both", "5", "3" ) )
+  transcriptToUtrRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE, on.translation.error=stop )
+  transcriptToCodingRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE, on.translation.error=stop )
+  utrProbesets( probesets, transcripts, end=c( "both", "5", "3" ), on.translation.error=stop )
+  codingProbesets( probesets, transcripts, end=c( "both", "5", "3" ), on.translation.error=stop )
 }
 \arguments{
   \item{ids}{ A vector of Transcript Names, or a RangedData object of Transcripts returned from another annmap call. }
@@ -21,6 +21,7 @@
   \item{probesets}{ An optional vector of Probeset Names, or a RangedData object of Probesets returned from another annmap call. }
   \item{transcripts}{ An optional vector of Transcript Names, or a RangedData object of Transcripts returned from another annmap call. }
   \item{end}{ Which end (\code{"both"}, \code{"3"} or \code{"5"}) of the Transcript(s) you are interested in (defaults to \code{both}). }
+  \item{on.translation.error}{ A function to call with a character vector explaining the problem if one is encountered with the translation locations in the database. }
 }
 \details{
   The first two functions given here, \code{transcriptToUtrRange} and \code{transcriptToCodingRange} return the transcripts
