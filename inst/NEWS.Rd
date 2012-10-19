@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.1.1}{
+  \itemize{
+    \item{IMPROVED}{ genomicPlot when passed a .genes data.frame used to call geneDetails on it to ensure the data was in the correct format.  This has been removed, so that you can pass custom regions in and have them plotted on the graph. }
+  }
+}
 \section{Changes in version 0.99.3}{
   \itemize{
     \item{BUG}{ ANNMAP-110 XXXInRange( NULL ) used to throw an error.  It now returns NULL. }

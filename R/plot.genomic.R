@@ -181,10 +181,6 @@ genomicPlot = function( xrange,               # An IRanges object representing t
   if( is.null( .genes ) ) {
     .genes = .fetch.genes.for.range( xrange, ... )
   }
-  else {
-    .genes = .get.correct.column( 'gene', .genes )
-    .genes = geneDetails( .genes, as.data.frame=T )
-  }
   .strand = if( class( xrange ) == 'GRanges' ) strandAsInteger( xrange ) else { if( xrange$strand == 0 ) NULL else xrange$strand }
   if( !is.null( .genes ) &&
       ( ( class( xrange ) == 'GRanges' && !is.na( .strand ) ) ||
