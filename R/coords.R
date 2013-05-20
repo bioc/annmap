@@ -2,7 +2,7 @@
 # Transcript coords to genome
 
 .single.transcript.coords.to.genome = function( transcript.id, position, exons, check.bounds, truncate ) {
-  strand     = as.numeric( unique( exons$strand ) )
+  strand     = as.integer( unique( exons$strand ) )
   space      = as.character( unique( exons$chromosome_name ) )
 
   if( dim( exons )[1] == 0 ) {
@@ -119,7 +119,7 @@ transcriptCoordsToGenome = function( transcript.ids, position=1, as.vector=FALSE
 # Genome coords to Transcript
 
 .genome.to.single.transcript.coords = function( position, transcript.id, exons, check.bounds ) {
-  strand     = as.numeric( unique( exons$strand ) )
+  strand     = as.integer( unique( exons$strand ) )
   space      = as.character( unique( exons$chromosome_name ) )
 
   if( dim( exons )[1] == 0 ) {
@@ -370,7 +370,7 @@ proteinCoordsToGenome = function( protein.ids, position=1, as.vector=FALSE, chec
   if( as.vector ) {
     n             = data$IN1
     data          = apply( data, 1, function( row ) {
-                      as.numeric( if( as.numeric( row[ 'strand' ] ) > 0 ) row[ 'start' ] else row[ 'end' ] )
+                      as.integer( if( as.integer( row[ 'strand' ] ) > 0 ) row[ 'start' ] else row[ 'end' ] )
                     } )
     names( data ) = n
 
