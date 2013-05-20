@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.2.1}{
+  \itemize{
+    \item{BUG}{ ANNMAP-112 transcriptCoordsToGenome and proteinCoordsToGenome both failed when returning a GRanges object as I had strand as a numeric, rather than an integer. }
+  }
+}
 \section{Changes in version 1.1.1}{
   \itemize{
     \item{IMPROVED}{ genomicPlot when passed a .genes data.frame used to call geneDetails on it to ensure the data was in the correct format.  This has been removed, so that you can pass custom regions in and have them plotted on the graph. }
