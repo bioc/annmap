@@ -54,7 +54,7 @@
   data.frame( start=pos, end=pos, chromosome_name=space, strand=strand, IN1=transcript.id, stringsAsFactors=FALSE )
 }
 
-transcriptCoordsToGenome = function( transcript.ids, position=1, as.vector=FALSE, check.bounds=TRUE, truncate=TRUE ) {
+transcriptCoordsToGenome = function( transcript.ids, position=1, as.vector=FALSE, check.bounds=TRUE, truncate=TRUE, cds=FALSE ) {
   transcript.ids = .get.correct.column( 'transcript', transcript.ids )
 
   if( is.null( transcript.ids ) ) {
@@ -64,6 +64,28 @@ transcriptCoordsToGenome = function( transcript.ids, position=1, as.vector=FALSE
   exons = transcriptToExon( unique( transcript.ids ), as.vector='data.frame' )
   if( is.null( exons ) ) {
     return( NULL )
+  }
+
+  if( cds ) {
+    exons = do.call( 'rbind', lapply( seq_along( transcript.ids ), function( index ) {
+      tr = transcript.ids[ index ]
+      ex = exons[ exons$IN1 == tr, ]
+      ra = GRanges( seqnames=ex$chromosome_name, IRanges( ex$start, ex$end ), strand=ex$strand, stable_id=ex$stable_id )
+      range = transcriptToCodingRange( tr )
+      if( length( range ) == 0 ) {
+        NULL
+      }
+      else {
+        ret = do.call( 'rbind', lapply( split( ra, ra$stable_id ), function( e ) as.data.frame( intersect( e, range ) ) ) )
+        ret$stable_id = rownames( ret )
+        rownames( ret ) = NULL
+        names( ret )[ names( ret ) == 'seqnames' ] = 'chromosome_name'
+        ret$width = NULL
+        ret$strand = strandAsInteger( ret$strand )
+        ret$IN1 = tr
+        ret[ with( ret, order( start ) ), ]
+      }
+    } ) )
   }
 
   if( length( position ) == 1 ) {
