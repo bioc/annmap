@@ -825,6 +825,13 @@ And as we are on the reverse strand, all these locations should match the end of
 pos.one == end( transcripts )
 @
 
+We can also pass \code{cds=TRUE} to this method to take the UTRs into account when calculating genomic location:
+
+<<eval=TRUE,echo=TRUE>>=
+pos.one = transcriptCoordsToGenome( transcripts, 1, as.vector=TRUE, cds=TRUE )
+pos.one
+@
+
 \subsection{Plotting data with \lstinline{genomicPlot}}
 
 \lstinline{genomicPlot} will plot the genes and exons found at a given locus.
