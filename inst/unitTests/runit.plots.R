@@ -26,7 +26,7 @@ test.bug.ACBBUTIL33 = function() {
   }
   else {
     # Plot to the null device, we're just looking for a crash
-    .Call("R_GD_nullDevice", PACKAGE = "grDevices")
+    pdf( file = NULL )
     region_interest = RangedData( space='7', strand=-1, ranges=IRanges(start=3192050-5000, end=3202400+5000 ) )
     ngsBridgePlot( region_interest, genome.layout.weight=0.4, trace.clip=T, trace.pad=c(0.5,0), trace.bor = 'black', smoothing.function=NULL, probe.plot=NULL )
     dev.off()
@@ -41,7 +41,7 @@ test.bug.ANNMAP40 = function() {
   }
   else {
     # Plot to the null device, we're just looking for a crash
-    .Call("R_GD_nullDevice", PACKAGE = "grDevices")
+    pdf( file = NULL )
 
     probe.data = "
 probe_id                      name probe_hit_count   hit_id probe_id chromosome_id chromosome_name     start       end strand
@@ -78,7 +78,7 @@ test.bug.ANNMAP44 = function() {
   }
   else {
     # Plot to the null device, we're just looking for a crash
-    .Call("R_GD_nullDevice", PACKAGE = "grDevices")
+    pdf( file = NULL )
 
     # This shouldn't crash, but did for ANNMAP44
     genomicPlot( exonDetails( 'ENSE00000919490' ) )
