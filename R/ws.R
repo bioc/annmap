@@ -3,7 +3,7 @@
 }
 
 .xmcws.connect = function( name ) {
-  data = suppressWarnings( fromJSON( file='http://annmap.picr.man.ac.uk/data/init.js' ) )
+  data = suppressWarnings( fromJSON( file='http://annmap.cruk.manchester.ac.uk/data/init.js' ) )
   a = do.call( 'rbind', unlist( lapply( names( data$items ), function( s ) {
     lapply( data$items[[ s ]]$versions, function( v ) {
       list( name=paste( s, v, sep='.' ), dbname=s, display=data$items[[ s ]]$display, version=v )
@@ -11,7 +11,7 @@
   } ), recursive=F ) )
   if( missing( name ) ) {
     r = menu( apply( a, 1, function( row ) {
-      paste( row$name, ' -- ', row$display, ' v', row$version, ' (http://annmap.picr.man.ac.uk/?s=', row$dbname, ')', sep='' )
+      paste( row$name, ' -- ', row$display, ' v', row$version, ' (http://annmap.cruk.manchester.ac.uk/?s=', row$dbname, ')', sep='' )
     } ), title="Select a database to connect to:" )
     if( r == 0 ) {
       return( invisible() )
@@ -28,17 +28,17 @@
   annmapDisconnect()
   species = as.character( dbs[,"dbname"] )
   version = as.character( dbs[,"version"] )
-  annmapSetParam( species=species, version=version, host='http://annmap.picr.man.ac.uk', db.name=name, connected=TRUE )
+  annmapSetParam( species=species, version=version, host='http://annmap.cruk.manchester.ac.uk', db.name=name, connected=TRUE )
 
-  cat( paste( 'Connected to ', name, ' (http://annmap.picr.man.ac.uk)\n', sep='' ) )
+  cat( paste( 'Connected to ', name, ' (http://annmap.cruk.manchester.ac.uk)\n', sep='' ) )
 
   arrayType( NULL, pick.default=TRUE )
 
-  invisible( list( host='http://annmap.picr.man.ac.uk', species=species, version=version ) )
+  invisible( list( host='http://annmap.cruk.manchester.ac.uk', species=species, version=version ) )
 }
 
 .load.and.parse = function( elements ) {
-  url = paste( 'http://annmap.picr.man.ac.uk/data/annmapws/', paste( elements, collapse='/' ), '.js', sep='' )
+  url = paste( 'http://annmap.cruk.manchester.ac.uk/data/annmapws/', paste( elements, collapse='/' ), '.js', sep='' )
 
   .xmap.internals$debugFn( paste( 'calling', url ) )
 

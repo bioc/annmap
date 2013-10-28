@@ -6,7 +6,7 @@
   Provide access to the Annmap annotation database
 }
 \description{
-  Annmap \url{http://annmap.picr.man.ac.uk} Is a genome annotation
+  Annmap \url{http://annmap.cruk.manchester.ac.uk} Is a genome annotation
   database and genome browser, based on the Google Maps API. The
   underlying annotation is derived from ENSEMBL
   (\url{http://www.ensembl.org}). Annmap also provides probe to genome

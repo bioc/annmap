@@ -58,7 +58,7 @@ your code from \code{exonmap} to \code{annmap}.
 \section{Introduction}
 
 \code{annmap} provides access to the genome annotation in the Annmap database
-(\url{http://annmap.picr.man.ac.uk}). It is designed to be a base layer for
+(\url{http://annmap.cruk.manchester.ac.uk}). It is designed to be a base layer for
 interrogating genome and probeset annotation, and to be extensible, so that later
 packages for Microarray Expression analysis, deep sequencing, or proteomics data
 analysis can be added to extend the functionality of \code{annmap}.  

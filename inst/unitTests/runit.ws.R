@@ -27,7 +27,7 @@ test.ANNMAP33 = function() {
     print( '\nSkipping webservice tests, no http/ftp capabilities' )
     return()
   }
-  a = tryCatch( url( 'http://annmap.picr.man.ac.uk', 'r' ), warning=function( w ) NULL, error=function( e ) NULL )
+  a = tryCatch( url( 'http://annmap.cruk.manchester.ac.uk', 'r' ), warning=function( w ) NULL, error=function( e ) NULL )
   if( is.null( a ) ) {
     print( '\nSkipping webservice tests, no route to annmap website' )
     return()
@@ -47,7 +47,7 @@ test.connection = function() {
     return()
   }
 
-  a = tryCatch( url( 'http://annmap.picr.man.ac.uk', 'r' ), warning=function( w ) NULL, error=function( e ) NULL )
+  a = tryCatch( url( 'http://annmap.cruk.manchester.ac.uk', 'r' ), warning=function( w ) NULL, error=function( e ) NULL )
   if( is.null( a ) ) {
     print( '\nSkipping webservice tests, no route to annmap website' )
     return()

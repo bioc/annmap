@@ -83,9 +83,9 @@ annmapConnect = function( name, use.webservice=FALSE ) {
     if( !capabilities()["http/ftp"] ) {
       stop( 'The version of R you are using is not built with http capability.' )
     }
-    a = tryCatch( url( 'http://annmap.picr.man.ac.uk', 'r' ), warning=function( w ) NULL, error=function( e ) NULL )
+    a = tryCatch( url( 'http://annmap.cruk.manchester.ac.uk', 'r' ), warning=function( w ) NULL, error=function( e ) NULL )
     if( is.null( a ) ) {
-      stop( 'Cannot connect to http://annmap.picr.man.ac.uk. Are you sure you have an internet connection?' )
+      stop( 'Cannot connect to http://annmap.cruk.manchester.ac.uk. Are you sure you have an internet connection?' )
     }
     close( a )
     if( !require( 'rjson', quietly=T ) ) { 

@@ -47,7 +47,7 @@
 
 The R package requires access to a MySQL database server running a current version
 of the \code{Annmap Database}. Database packs (complete with installation
-instructions) may be downloaded from \url{http://annmap.picr.man.ac.uk/download}.
+instructions) may be downloaded from \url{http://annmap.cruk.manchester.ac.uk/download}.
 
 \subsection{Pre-requisites}
 
@@ -74,7 +74,7 @@ The following are required for the Annmap Database installation:
 \end{center}
 
   First, you will need to download and unzip the \code{annmap} database for the species and version of
-Ensembl you are interested in studying.  This can be downloaded from \url{http://annmap.picr.man.ac.uk/download}
+Ensembl you are interested in studying.  This can be downloaded from \url{http://annmap.cruk.manchester.ac.uk/download}
 
   You will then need to create the database into which to load the data.  To do
 this, simply log in to your MySQL server, and execute the following command\footnote{This obviously

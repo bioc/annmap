@@ -47,7 +47,7 @@ and recipes to help you get started.
 
 \code{annmap} makes use of a MySQL database, \code{annmap}, to provide its
 annotation data (downloadable from the Annmap
-website\footnote{\url{http://annmap.picr.man.ac.uk/download}}). A variety
+website\footnote{\url{http://annmap.cruk.manchester.ac.uk/download}}). A variety
 of different species are supported - each with their own separate database. 
 
 {\bf This document assumes that you have downloaded and installed one of the
