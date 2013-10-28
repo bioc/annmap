@@ -82,7 +82,7 @@ test.michal.utr.bug.two = function() {
     g   = 'ENSG00000130283'
     ppp = geneToProbeset( g )
     ttt = geneToTranscript( g )
-    checkEquals( length( utrProbesets( ppp, ttt ) ), 27 )
+    checkEquals( length( utrProbesets( ppp, ttt ) ), 26 )
   }
 }
 
