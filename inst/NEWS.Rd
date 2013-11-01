@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.3}{
+  \itemize{
+    \item{IMPROVED}{ ANNMAP-114 Added additional logging when using webservice }
+    \item{IMPROVED}{ ANNMAP-113 Added documentation to cookbook for webservice }
+    \item{IMPROVED}{ webservice json to data.frame speed improvements }
+  }
+}
 \section{Changes in version 1.2.1}{
   \itemize{
     \item{BUG}{ ANNMAP-112 transcriptCoordsToGenome and proteinCoordsToGenome both failed when returning a GRanges object as I had strand as a numeric, rather than an integer. }

@@ -37,43 +37,71 @@
   invisible( list( host='http://annmap.cruk.manchester.ac.uk', species=species, version=version ) )
 }
 
+.pretty.size = function( x ) {
+    ifelse( x >= 1024^3, paste( round( x/1024^3, 1L ), "Gb"    ),
+    ifelse( x >= 1024^2, paste( round( x/1024^2, 1L ), "Mb"    ),
+    ifelse( x >= 1024  , paste( round( x/1024,   1L ), "Kb"    ),
+                         paste( x,                     "bytes" )
+    )))
+}
+
 .load.and.parse = function( elements ) {
   url = paste( 'http://annmap.cruk.manchester.ac.uk/data/annmapws/', paste( elements, collapse='/' ), '.js', sep='' )
 
   .xmap.internals$debugFn( paste( 'calling', url ) )
 
-  data = suppressWarnings( fromJSON( file=url ) )
+  if( annmapGetParam( 'quiet.webservice' ) == FALSE ) {
+    cat( "Fetching data from webservice...\n" )
+  }
+  json = suppressWarnings( readLines( url ) )
+  if( annmapGetParam( 'quiet.webservice' ) == FALSE ) {
+    cat( paste( "Retrieved data of size ", .pretty.size( nchar( json ) ), ". Parsing...\n", sep='' ) )
+  }
+  data = fromJSON( json )
 
   if( !is.null( data$error ) ) {
     stop( data$error )
   }
 
+  if( annmapGetParam( 'quiet.webservice' ) == FALSE ) {
+    cat( paste( "Generating data.frame\n" ) )
+  }
   if( length( data$items ) == 0 ) {
     return( NULL )
   }
   else if( is.null( names( data$items ) ) ) { # list from .all query
-    rslt = do.call( 'rbind', lapply( seq_along( data$items ), function( r ) {
-      ret2 = data$items[[ r ]]
-      ret2 = ret2[ !( names( ret2 ) %in% c( '__type', '__id', 'synonyms' ) ) ]
-      ret2[ sapply( ret2, is.null ) ] = NA
-      data.frame( ret2, stringsAsFactors=F )
-    } ) )
+    parse = function( idx ) {
+      ret = data$items[[ idx ]]
+      ret = ret[ !( names( ret ) %in% c( '__type', '__id', 'synonyms' ) ) ]
+      ret[ sapply( ret, is.null ) ] = NA
+      unlist( ret )
+    }
+    rslt = data.frame(
+      do.call( 'rbind',
+        lapply( seq_along( data$items ), parse )
+      ),
+      stringsAsFactors=F )
   }
   else { # Map from other query
-    rslt = do.call( 'rbind', lapply( names( data$items ), function( IN1 ) {
-      ret = do.call( 'rbind', lapply( seq_along( data$items[[ IN1 ]] ), function( idx ) {
-        ret2 = data$items[[ IN1 ]][[ idx ]]
-        ret2$IN1 = IN1
-        ret2 = ret2[ !( names( ret2 ) %in% c( '__type', '__id', 'synonyms' ) ) ]
-        ret2[ sapply( ret2, is.null ) ] = NA
-        data.frame( ret2, stringsAsFactors=F )
-      } ) )
-    } ) )
+    innerMapping = function( idx, IN1 ) {
+      ret = data$items[[ IN1 ]][[ idx ]]
+      ret$IN1 = IN1
+      ret = ret[ !( names( ret ) %in% c( '__type', '__id', 'synonyms' ) ) ]
+      ret[ sapply( ret, is.null ) ] = NA
+      unlist( ret )
+    }
+    outerMapping = function( IN1 ) {
+      do.call( 'rbind', lapply( seq_along( data$items[[ IN1 ]] ), innerMapping, IN1=IN1 ) )
+    }
+    rslt = data.frame(
+      do.call( 'rbind', lapply( names( data$items ), outerMapping ) ),
+      stringsAsFactors=F )
   }
   # type convert values which need it (start, end, strand)
-  if( !is.null( rslt$start ) )  rslt$start  = as.integer( rslt$start )
-  if( !is.null( rslt$end ) )    rslt$end    = as.integer( rslt$end )
-  if( !is.null( rslt$strand ) ) rslt$strand = as.integer( rslt$strand )
+  if( !is.null( rslt$start ) )  rslt$start   = as.integer( rslt$start )
+  if( !is.null( rslt$end ) )    rslt$end     = as.integer( rslt$end )
+  if( !is.null( rslt$strand ) ) rslt$strand  = as.integer( rslt$strand )
+  if( !is.null( rslt$length ) ) rslt$length  = as.integer( rslt$length )
   rslt
 }
 
@@ -90,7 +118,13 @@
       elements = c( elements, params$array )
     }
     ret = .load.and.parse( elements )
+    if( annmapGetParam( 'quiet.webservice' ) == FALSE ) {
+      cat( "Saving to cache.\n" )
+    }
     .cache.store( cache.id, ret )
+  }
+  else if( annmapGetParam( 'quiet.webservice' ) == FALSE ) {
+    cat( "Loaded data from cache.\n" )
   }
   ret
 }

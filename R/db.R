@@ -73,7 +73,7 @@ annmapAddConnection = function( dsname, species, version,
 }
 
 # Exported functions
-annmapConnect = function( name, use.webservice=FALSE ) {
+annmapConnect = function( name, use.webservice=FALSE, quiet.webservice=FALSE ) {
   if( ( use.webservice  &&  is.null( .xmap.internals$webservice ) ) ||
       ( !use.webservice && !is.null( .xmap.internals$webservice ) ) ||
       ( is.null( .xmap.internals$initialised ) ) ) {
@@ -111,6 +111,7 @@ annmapConnect = function( name, use.webservice=FALSE ) {
     .procs$disconnect = .xmcws.disconnect
     annmapSetParam( procs=.procs )
     annmapSetParam( webservice=TRUE )
+    annmapSetParam( quiet.webservice=quiet.webservice )
     annmapGetParam( "debugFn" )( "Using WebService for data access.\n" )
   }
   else {

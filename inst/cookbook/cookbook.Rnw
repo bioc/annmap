@@ -54,6 +54,9 @@ of different species are supported - each with their own separate database.
 available MySQL databases (as described in the \href{file:INSTALL.pdf}{INSTALL}
 vignette that came with this package).}
 
+It is also possible to connect to the annmap webservice instead of installing your
+own database -- with some caveats. Please see the section \ref{wsc} for details.
+
 \subsection{Preamble}
 
 This cookbook is designed to walk you through the annmap functions from first
@@ -166,6 +169,35 @@ new connection. If you enter \lstinline{annmapConnect()} without any parameters,
 it will show you a list of possible databases to choose
 from\footnote{unless you only have one database defined, in which case it will
 simply connect you to that}.
+
+\subsection{Using the annmap webservice\label{wsc}}
+
+It's also possible to connect to the annmap webservice to get your data.
+
+This is slower than using a locally installed database, less reliable as it
+relies on the annmap website which is occasionally taken down for updating.
+
+Also, the annmap website operates a 'one in one out' rule, so when a new species
+version is added, the oldest one is removed to save disk space.
+
+Those caveats aside, it's a great way of testing things out without the need to
+install MySQL and the database.
+
+To connect to the webservice, simply call:
+
+<<eval=FALSE,echo=TRUE>>=
+annmapConnect( use.webservice=TRUE )
+@
+
+and you will be presented with a list of available connections to use.
+
+As with the non-webservice connection, you can also do:
+
+<<eval=FALSE,echo=TRUE>>=
+annmapConnect( 'homo_sapiens.72', use.webservice=TRUE )
+@
+
+To connect to a known named webservice connection (so long as it exists).
 
 \subsection{Disconnecting from the database}
 

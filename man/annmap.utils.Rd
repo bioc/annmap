@@ -16,7 +16,7 @@
   Functions to connect to the database and manage the database connections. 
 }
 \usage{
-  annmapConnect( name, use.webservice=FALSE )
+  annmapConnect( name, use.webservice=FALSE, quiet.webservice=FALSE )
   annmapDisconnect()
   annmapAddConnection( dsname, species, version,
                        host='localhost',
@@ -34,6 +34,7 @@
 \arguments{
   \item{name}{ The name of the database to connect to, or the array to select. }
   \item{use.webservice}{ If \code{TRUE}, we will use the annmap webservices rather than a local MySQL installation.}
+  \item{quiet.webservice}{ If \code{FALSE}, there will be output as the webservice calls are processed. Set \code{TRUE} to silence these. }
   \item{dsname}{ The name of the datasource to add or modify.}
   \item{species}{ The species of interest.}
   \item{version}{ The version of the database to connect to.}
