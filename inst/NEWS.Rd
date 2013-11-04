@@ -1,5 +1,11 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.4}{
+  \itemize{
+    \item{BUG}{ ANNMAP-118 transcriptToCodingRange( ..., end='3' ) returns whole transcript for untranslated transcripts. }    \item{IMPROVED}{ ANNMAP-114 Added additional logging when using webservice }
+    \item{IMPROVED}{ ANNMAP-116 Introduce function(s) to calculate the coding length of a gene(s) -- See: \code{?nonIntronicGeneLength} and \code{?nonIntronicTranscriptLength}. }
+  }
+}
 \section{Changes in version 1.5.3}{
   \itemize{
     \item{IMPROVED}{ ANNMAP-114 Added additional logging when using webservice }

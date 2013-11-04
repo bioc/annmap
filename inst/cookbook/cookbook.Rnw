@@ -36,6 +36,8 @@
 
 \tableofcontents
 
+\pagebreak
+
 \section{Introduction}
 
 \code{annmap} is a Bioconductor package that provides annotation data and
@@ -699,22 +701,22 @@ codingProbesets( NULL, transcripts )
 
 \subsection{Coding regions and UTRs}
 
-It is possible to manipulate a list of transcripts so that you find the genomic location of their coding region or UTR.  This is done using the two complementary methods \lstinline{transcriptToUtrRange} and \lstinline{transcriptToCodingRange}.  Here for example is the normal details for a given transcript \code{ENST00000417324} which falls on the reverse strand of Chromosome 1 in human:
+It is possible to manipulate a list of transcripts so that you find the genomic location of their coding region or UTR.  This is done using the two complementary methods \lstinline{transcriptToUtrRange} and \lstinline{transcriptToCodingRange}.  Here for example is the normal details for a given transcript \code{ENST00000297261} which falls on the reverse strand of Chromosome 7 in human:
 
 <<eval=TRUE,echo=TRUE>>=
-transcriptDetails( 'ENST00000417324' )
+transcriptDetails( 'ENST00000297261' )
 @
 
 We can also get the genomic coordinates of its coding region:
 
 <<eval=TRUE,echo=TRUE>>=
-transcriptToCodingRange( 'ENST00000417324' )
+transcriptToCodingRange( 'ENST00000297261' )
 @
 
 Or, we can get the regions covered by the UTR of this same transcript:
 
 <<eval=TRUE,echo=TRUE>>=
-transcriptToUtrRange( 'ENST00000417324' )
+transcriptToUtrRange( 'ENST00000297261' )
 @
 
 Again, these two methods take an optional \lstinline{'end'} parameter to specify which end of the transcript you want to work with\footnote{if you pass an \lstinline{'end'} to
@@ -722,8 +724,30 @@ Again, these two methods take an optional \lstinline{'end'} parameter to specify
 and the 5' end, but not the 3' end.}:
 
 <<eval=TRUE,echo=TRUE>>=
-transcriptToCodingRange( 'ENST00000417324', end='3' )
-transcriptToUtrRange( 'ENST00000417324', end='3' )
+transcriptToCodingRange( 'ENST00000297261', end='3' )
+transcriptToUtrRange( 'ENST00000297261', end='3' )
+@
+
+\subsection{Gene and Transcript coding length}
+
+It is possible to get the 'coding length' of a gene by calling:
+
+<<eval=TRUE,echo=TRUE>>=
+nonIntronicGeneLength( symbolToGene( c( 'SHH', 'PTEN' ) ) )
+@
+
+This merges all the exons in each gene (overlapping them where applicable) and returns you a sum of all their widths.
+
+For transcripts, you also have the method:
+
+<<eval=TRUE,echo=TRUE>>=
+nonIntronicTranscriptLength( geneToTranscript( symbolToGene( 'SHH' ) ) )
+@
+
+In which you may also specify if you wish to only look at coding regions by specifying an 'end':
+
+<<eval=TRUE,echo=TRUE>>=
+nonIntronicTranscriptLength( geneToTranscript( symbolToGene( 'SHH' ) ), end='both' )
 @
 
 \pagebreak

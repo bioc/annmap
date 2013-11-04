@@ -1,8 +1,11 @@
 \name{annmapUtr}
 \alias{transcriptToUtrRange}
 \alias{transcriptToCodingRange}
+\alias{transcriptToCodingExon}
 \alias{utrProbesets}
 \alias{codingProbesets}
+\alias{nonIntronicTranscriptLength}
+\alias{nonIntronicGeneLength}
 \title{
   annmap coding functions
 }
@@ -12,12 +15,16 @@
 \usage{
   transcriptToUtrRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE, on.translation.error=stop )
   transcriptToCodingRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE, on.translation.error=stop )
+  transcriptToCodingExon( ids, end=c( 'both', '5', '3' ), as.vector=FALSE, on.translation.error=stop )
   utrProbesets( probesets, transcripts, end=c( "both", "5", "3" ), on.translation.error=stop )
   codingProbesets( probesets, transcripts, end=c( "both", "5", "3" ), on.translation.error=stop )
+  nonIntronicTranscriptLength( ids, end=c( 'none', 'both', '5', '3' ), on.translation.error=stop )
+  nonIntronicGeneLength( ids )
 }
 \arguments{
   \item{ids}{ A vector of Transcript Names, or a RangedData object of Transcripts returned from another annmap call. }
   \item{as.data.frame}{ If \code{FALSE}, data will be converted to a \code{RangedData} object if possible, otherwise a \code{data.frame} }
+  \item{as.vector}{ If \code{TRUE} returns a vector of database identifiers. If \code{FALSE} returns a \code{link{GRanges}} object containing detailed annotation. }
   \item{probesets}{ An optional vector of Probeset Names, or a RangedData object of Probesets returned from another annmap call. }
   \item{transcripts}{ An optional vector of Transcript Names, or a RangedData object of Transcripts returned from another annmap call. }
   \item{end}{ Which end (\code{"both"}, \code{"3"} or \code{"5"}) of the Transcript(s) you are interested in (defaults to \code{both}). }
@@ -35,6 +42,8 @@
   The \code{transcriptToCodingRange} function returns the same as calling \code{transcriptDetails}, but with the start and end locations
   modified by the range of the UTR.  If \code{end} is passed, then only the UTR at this end will be taken into consideration and used to modify
   the returned location.
+
+  The \code{transcriptToCodingExon} function returns the exons for each transcript limited to only those exons (or partions thereof) which are coding.
 
   \code{utrProbesets} and \code{codingProbesets} are functions to find or filter probesets which have probes targeting the type of region
   specified by the function name.
@@ -59,6 +68,10 @@
   These can be removed with a call to the appropriate filter function (see examples).
   
   All \code{unreliable} probesets are automatically removed by these functions before mapping.
+
+  Calling \code{nonIntronicTranscriptLength} will return the length of the exons (coding can be specified via the \code{end} parameter) in a given list of transcripts.
+
+  And \code{nonIntronicGeneLength} will give the length of all exons in a given gene when overlaps are taken into account (so two exactly overlapping exons will count once for the length)
 }
 \seealso{
   \code{\link{annmapTo}}\cr
