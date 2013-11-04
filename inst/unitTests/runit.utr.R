@@ -99,3 +99,21 @@ test.michal.utr.bug.three = function() {
   }
 }
 
+test.ANNMAP118 = function() {
+  data = tryCatch( annmapConnect( "hs-test" ), error=function(e) { FALSE } )
+  if( length( data ) == 1 ) {
+    print( "Cannot find datasource 'hs-test', so skipping these tests." )
+  }
+  else {
+    ttcr3 = transcriptToCodingRange( 'ENST00000463968', end='3' )
+    checkEquals( length( ttcr3 ), 0 )
+
+    ttcr5 = transcriptToCodingRange( 'ENST00000463968', end='5' )
+    checkEquals( length( ttcr5 ), 0 )
+
+    ttcrb = transcriptToCodingRange( 'ENST00000463968', end='both' )
+    checkEquals( length( ttcrb ), 0 )
+  }
+
+
+}

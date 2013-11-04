@@ -9,8 +9,8 @@
     if( end == 'both' ) {
       return( data.frame( IN1=c( transcript$stable_id, transcript$stable_id ),
                           chromosome_name=c( space, space ),
-                          start=c( transcript$start, NA ),
-                          end=c( transcript$end, NA ),
+                          start=c( transcript$start, transcript$start ),
+                          end=c( transcript$end, transcript$end ),
                           strand=c( strand, strand ),
                           prime=c( '5', '3' ),
                           phase=c( NA, NA ),
