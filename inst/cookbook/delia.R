@@ -35,6 +35,7 @@ if( length( data ) == 1 ) {
 	unlink( 'bridge3.png' )
 	unlink( 'bridge4.png' )
 	unlink( 'bridge5.png' )
+	unlink( 'gviz1.png' )
 	unlink( 'fig1.pdf' )
 	unlink( 'fig2.pdf' )
 	unlink( 'fig3.pdf' )

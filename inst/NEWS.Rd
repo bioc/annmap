@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.5}{
+  \itemize{
+    \item{IMPROVED}{ ANNMAP-115 Added method \code{geneToGeneRegionTrack} to generate a list of \code{Gviz} \code{GeneRegionTrack} elements that can be passed to \code{plotTracks} }
+  }
+}
 \section{Changes in version 1.5.4}{
   \itemize{
     \item{BUG}{ ANNMAP-118 transcriptToCodingRange( ..., end='3' ) returns whole transcript for untranslated transcripts. }    \item{IMPROVED}{ ANNMAP-114 Added additional logging when using webservice }

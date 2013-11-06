@@ -1116,4 +1116,42 @@ data = generateBridgeData( symbolToGene( 'SHH' ), bamfiles )
 
 Will generate the required format with sensible defaults for \code{name} and \code{col}.  These defaults can be overridden by setting the \code{names} and \code{colours} parameters on the \lstinline{generateBridgeData} function.
 
+\subsection{Gviz integration}
+
+It is also possible to convert a list of genes to a list of \code{GeneRegionTrack} for rendering in Gviz (Figure \ref{fig:gviz1}).
+
+<<eval=FALSE,echo=TRUE>>=
+library( Gviz )
+
+gene   = symbolToGene( 'SHH' )
+genome = 'hg19'
+
+itrack = IdeogramTrack( genome=genome, chromosome=unique( as.character( seqnames( gene ) ) ) )
+gtrack = GenomeAxisTrack()
+atrack = geneToGeneRegionTrack( gene, genome, showId=TRUE )
+
+plotTracks( c( itrack, gtrack, atrack ), extend.left=1000, extend.right=1000 )
+@
+<<label=gviz1,fig=FALSE,results=tex,echo=FALSE>>=
+library( Gviz )
+wid = 4
+hei = 2
+png("gviz1.png", res=200, units='in', width = wid, height = hei)
+gene   = symbolToGene( 'SHH' )
+genome = 'hg19'
+itrack = IdeogramTrack( genome=genome, chromosome=unique( as.character( seqnames( gene ) ) ) )
+gtrack = GenomeAxisTrack()
+displayPars( gtrack ) = list( cex=0.5 )
+atrack = geneToGeneRegionTrack( gene, genome, showId=TRUE )
+plotTracks( c( itrack, gtrack, atrack ), extend.left=1000, extend.right=1000 )
+dummy = dev.off()
+@
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1]{gviz1}
+\caption{Gviz plot of the gene SSH.}
+\label{fig:gviz1}
+\end{figure}
+
 \end{document}

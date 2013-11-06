@@ -9,6 +9,7 @@
 \alias{annmapGenePlot}
 \alias{annmapRangeApply}
 \alias{strandAsInteger}
+\alias{geneToGeneRegionTrack}
 \title{
   annmap 'utils' functions
 }
@@ -30,6 +31,7 @@
   annmapClearCache()
   annmapRangeApply( x, f, filter=c( chr="space", start="start", end="end", strand="strand" ), coerce=c( as.character, as.numeric, as.numeric, as.numeric ), ... )
   strandAsInteger( granges )
+  geneToGeneRegionTrack( genes, genome, coalesce.name=NULL, ... )
 }
 \arguments{
   \item{name}{ The name of the database to connect to, or the array to select. }
@@ -50,8 +52,11 @@
   \item{f}{A function to apply to each \'row\' of the \code{\link{RangedData}} object}
   \item{filter}{Which \'columns\' of the \code{\link{RangedData}} object does the function need, and what parameters in the function do they map on to?. For example, by default, the field \'space\' gets mapped to the parameter \'chr\'.}
   \item{coerce}{What is the type of each parameter in \'f\'?}
-  \item{...}{additional parameters to \'f\'}
+  \item{...}{additional parameters}
   \item{granges}{A GRanges object}
+  \item{genes}{ The genes you wish to load into a \code{GeneRegionTrack} they must all be on the same chromosome. }
+  \item{genome}{ A valid Gviz genome, ie: \code{'hg19'}. }
+  \item{coalesce.name}{ If this is a character vector, all genes will be joined into a single track with this name. Otherwise each gene will have its own track. }
 }
 \details{
   \code{annmapConnect} is used to establish a connection to an
@@ -68,6 +73,9 @@
 
   The function \code{strandAsInteger} takes a \code{GRanges} object and returns an integer vector of strands in the
   Ensembl style.  "+" becomes 1, "-" becomes -1, and "*" becomes \code{NA}.
+
+  The function \code{geneToGeneRegionTrack} takes a list of genes (character vector, GRanges object, etc), and returns
+  a list of GeneRegionTracks which can be plotted in Gviz. There is an example in the cookbook.
 }
 \seealso{
   \code{\link{annmapTo}}\cr

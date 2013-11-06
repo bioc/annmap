@@ -309,6 +309,41 @@ geneToExonProbesetExpr = function( x, ids, probes.min=4 ) {
   r
 }
 
+geneToGeneRegionTrack = function( genes, genome, coalesce.name=NULL, ... ) {
+  genes = geneDetails( genes )
+  if( length( genes ) == 0 ) {
+    return( list() )
+  }
+  if( length( unique( as.character( seqnames( genes ) ) ) ) > 1 ) {
+    stop( 'Cannot generate region tracks that are on differing chromosomes' )
+  }
+  generate = function( name ) {
+    genes                            = if( is.list( genes ) ) genes[[ name ]] else genes
+    transcripts                      = geneToTranscript( genes )
+    exons                            = transcriptToExon( transcripts )
+
+    mcols( genes )                   = mcols( genes )[ , c( 'stable_id', 'biotype', 'symbol' ) ]
+    colnames( mcols( genes ) )       = c( 'gene', 'feature', 'symbol' )
+
+    mcols( transcripts )             = mcols( transcripts )[ , c( 'IN1', 'stable_id' ) ]
+    colnames( mcols( transcripts ) ) = c( 'gene', 'transcript' )
+
+    mcols( exons )                   = mcols( exons )[ , c( 'IN1', 'stable_id' ) ]
+    colnames( mcols( exons ) )       = c( 'transcript', 'exon' )
+
+    mcols( exons ) = merge( mcols( exons ), mcols( transcripts ), by.x='transcript', by.y='transcript', sort=F )
+    mcols( exons ) = merge( mcols( exons ), mcols( genes ),       by.x='gene',       by.y='gene',       sort=F )
+
+    GeneRegionTrack( exons, genome=genome, chromosome=as.character( seqnames( genes ) ), name=name, ... )
+  }
+  if( !is.null( coalesce.name ) ) {
+    generate( coalesce.name )
+  } 
+  else {
+    sapply( names( split( genes, genes$stable_id ) ), generate )
+  } 
+}
+
 arrayType = function( name=NULL, pick.default=FALSE, silent=FALSE ) {
   # Get a list of arrays from the database
   arrs = allArrays( as.vector=FALSE )
