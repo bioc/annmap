@@ -33,12 +33,14 @@ test.ANNMAP33 = function() {
     return()
   }
   close( a )
-
-  annmapConnect( 'homo_sapiens.72', use.webservice=T )
-  annmapSetParam( debug=T )
-  exons = geneToExon( symbolToGene( 'tp53' ), as.vector=TRUE )
-  checkTrue( length( exons ) > 1, 'Expected more than one exon from geneToExon via webservice' )
-  annmapDisconnect()
+  if( require( 'rjson', quietly=T ) ) {
+    db = paste( 'homo_sapiens', fromJSON( file='http://annmap.cruk.manchester.ac.uk/data/init.js' )$items$homo_sapiens$currentVersion, sep='.' )
+    annmapConnect( db, use.webservice=T )
+    annmapSetParam( debug=T )
+    exons = geneToExon( symbolToGene( 'tp53' ), as.vector=TRUE )
+    checkTrue( length( exons ) > 1, 'Expected more than one exon from geneToExon via webservice' )
+    annmapDisconnect()
+  }
 }
 
 test.connection = function() {
@@ -54,11 +56,14 @@ test.connection = function() {
   }
   close( a )
 
-  annmapConnect( "homo_sapiens.72", use.webservice=T )
+  if( require( 'rjson', quietly=T ) ) {
+    db = paste( 'homo_sapiens', fromJSON( file='http://annmap.cruk.manchester.ac.uk/data/init.js' )$items$homo_sapiens$currentVersion, sep='.' )
+    annmapConnect( db, use.webservice=T )
 
-  chrs = chromosomeDetails( allChromosomes() )
-  checkTrue( length( chrs ) == 25, 'Should have got 25 rows via chromosomeDetails via WS' )
+    chrs = chromosomeDetails( allChromosomes() )
+    checkTrue( length( chrs ) == 25, 'Should have got 25 rows via chromosomeDetails via WS' )
 
-  annmapDisconnect()
+    annmapDisconnect()
+  }
 }
 
