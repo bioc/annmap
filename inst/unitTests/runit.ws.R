@@ -34,7 +34,7 @@ test.ANNMAP33 = function() {
   }
   close( a )
 
-  annmapConnect( 'homo_sapiens.64', use.webservice=T )
+  annmapConnect( 'homo_sapiens.74', use.webservice=T )
   annmapSetParam( debug=T )
   exons = geneToExon( symbolToGene( 'tp53' ), as.vector=TRUE )
   checkTrue( length( exons ) > 1, 'Expected more than one exon from geneToExon via webservice' )
@@ -54,7 +54,7 @@ test.connection = function() {
   }
   close( a )
 
-  annmapConnect( "homo_sapiens.64", use.webservice=T )
+  annmapConnect( "homo_sapiens.74", use.webservice=T )
 
   chrs = chromosomeDetails( allChromosomes() )
   checkTrue( length( chrs ) == 25, 'Should have got 25 rows via chromosomeDetails via WS' )
