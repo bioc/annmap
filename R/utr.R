@@ -221,6 +221,43 @@ transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=F
   }
 }
 
+transcriptToUtrExon = function( ids, end=c( 'both', '5', '3' ), as.vector=FALSE, on.translation.error=stop ) {
+  ranges = transcriptToUtrRange( ids, end, on.translation.error=on.translation.error )
+  exons  = transcriptToExon( ids )
+
+  rslt = do.call( c, lapply( unique( exons$IN1 ), function( transcript ) {
+    r = ranges[ ranges$IN1 == transcript, ]
+    if( length( r ) == 0 ) {
+      exons[ exons$IN1 == 'false', ]
+    }
+    else if( length( r ) == 1 ) {
+      restrict( exons[ exons$IN1 == transcript, ], start=start( r ), end=end( r ) )
+    }
+    else {
+      c( restrict( exons[ exons$IN1 == transcript, ], start=start( r[1] ), end=end( r[1] ) ),
+         restrict( exons[ exons$IN1 == transcript, ], start=start( r[2] ), end=end( r[2] ) ) )
+    }
+  } ) )
+
+  rslt$sequence = NULL
+  if( length( rslt ) == 0 ) {
+    return( NULL )
+  }
+  if( as.vector == 'data.frame' ) {
+    strands = strandAsInteger( rslt )
+    rslt = as.data.frame( rslt )
+    colnames( rslt )[ colnames( rslt ) == "seqnames" ] = "chromosome_name"
+    rslt$width = NULL
+    rslt$strand = strands
+  }
+  else if( as.vector == TRUE ) {
+    names = rslt$IN1
+    rslt = rslt$stable_id
+    names( rslt ) = names
+  }
+  rslt
+}
+
 transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE, on.translation.error=stop ) {
   ids = .get.correct.column( 'transcript', ids )
   if( is.null( ids ) ) {
@@ -284,6 +321,10 @@ transcriptToCodingExon = function( ids, end=c( 'both', '5', '3' ), as.vector=FAL
     }
   } ) )
 
+  rslt$sequence = NULL
+  if( length( rslt ) == 0 ) {
+    return( NULL )
+  }
   if( as.vector == 'data.frame' ) {
     strands = strandAsInteger( rslt )
     rslt = as.data.frame( rslt )

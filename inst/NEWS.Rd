@@ -1,5 +1,11 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.6}{
+  \itemize{
+    \item{NEW}{ Added \code{transcriptToUtrExon} }
+    \item{IMPROVED}{ Sequence removed from \code{transcriptToCodingExon} }
+  }
+}
 \section{Changes in version 1.5.5}{
   \itemize{
     \item{IMPROVED}{ ANNMAP-115 Added method \code{geneToGeneRegionTrack} to generate a list of \code{Gviz} \code{GeneRegionTrack} elements that can be passed to \code{plotTracks} }

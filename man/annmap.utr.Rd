@@ -1,5 +1,6 @@
 \name{annmapUtr}
 \alias{transcriptToUtrRange}
+\alias{transcriptToUtrExon}
 \alias{transcriptToCodingRange}
 \alias{transcriptToCodingExon}
 \alias{utrProbesets}
@@ -14,6 +15,7 @@
 }
 \usage{
   transcriptToUtrRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE, on.translation.error=stop )
+  transcriptToUtrExon( ids, end=c( 'both', '5', '3' ), as.vector=FALSE, on.translation.error=stop )
   transcriptToCodingRange( ids, end=c( "both", "5", "3" ), as.data.frame=FALSE, on.translation.error=stop )
   transcriptToCodingExon( ids, end=c( 'both', '5', '3' ), as.vector=FALSE, on.translation.error=stop )
   utrProbesets( probesets, transcripts, end=c( "both", "5", "3" ), on.translation.error=stop )
@@ -43,7 +45,7 @@
   modified by the range of the UTR.  If \code{end} is passed, then only the UTR at this end will be taken into consideration and used to modify
   the returned location.
 
-  The \code{transcriptToCodingExon} function returns the exons for each transcript limited to only those exons (or partions thereof) which are coding.
+  The \code{transcriptToCodingExon} and \code{transcriptToUtrExon} functions return the exons for each transcript limited to only those exons (or partions thereof) which are coding or part of the UTR.
 
   \code{utrProbesets} and \code{codingProbesets} are functions to find or filter probesets which have probes targeting the type of region
   specified by the function name.
