@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.7}{
+  \itemize{
+    \item{BUG}{ Check for uniqueness in transcriptToCodingExon, transcriptToCodingRange, transcriptToUtrExon and transcriptToUtrRange }
+  }
+}
 \section{Changes in version 1.5.6}{
   \itemize{
     \item{NEW}{ Added \code{transcriptToUtrExon} }

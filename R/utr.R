@@ -189,6 +189,10 @@
 
 transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE, on.translation.error=stop ) {
   ids = .get.correct.column( 'transcript', ids )
+  if( any( duplicated( ids ) ) ) {
+    warning( 'Duplicate ids detected.  Duplicates will be removed.' )
+    ids = unique( ids )
+  }
   if( is.null( ids ) ) {
     return( NULL )
   }
@@ -222,6 +226,11 @@ transcriptToUtrRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=F
 }
 
 transcriptToUtrExon = function( ids, end=c( 'both', '5', '3' ), as.vector=FALSE, on.translation.error=stop ) {
+  ids = .get.correct.column( 'transcript', ids )
+  if( any( duplicated( ids ) ) ) {
+    warning( 'Duplicate ids detected.  Duplicates will be removed.' )
+    ids = unique( ids )
+  }
   ranges = transcriptToUtrRange( ids, end, on.translation.error=on.translation.error )
   exons  = transcriptToExon( ids )
 
@@ -260,6 +269,10 @@ transcriptToUtrExon = function( ids, end=c( 'both', '5', '3' ), as.vector=FALSE,
 
 transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.frame=FALSE, on.translation.error=stop ) {
   ids = .get.correct.column( 'transcript', ids )
+  if( any( duplicated( ids ) ) ) {
+    warning( 'Duplicate ids detected.  Duplicates will be removed.' )
+    ids = unique( ids )
+  }
   if( is.null( ids ) ) {
     return( NULL )
   }
@@ -308,6 +321,11 @@ transcriptToCodingRange = function( ids, end=c( 'both', '5', '3' ), as.data.fram
 }
 
 transcriptToCodingExon = function( ids, end=c( 'both', '5', '3' ), as.vector=FALSE, on.translation.error=stop ) {
+  ids = .get.correct.column( 'transcript', ids )
+  if( any( duplicated( ids ) ) ) {
+    warning( 'Duplicate ids detected.  Duplicates will be removed.' )
+    ids = unique( ids )
+  }
   ranges = transcriptToCodingRange( ids, end, on.translation.error=on.translation.error )
   exons  = transcriptToExon( ids )
   
