@@ -11,7 +11,7 @@
 }
 \usage{
   transcriptCoordsToGenome( transcript.ids, position=1, as.vector=FALSE, check.bounds=TRUE, truncate=TRUE, cds=FALSE )
-  genomeToTranscriptCoords( position, transcript.ids, as.vector=FALSE, check.bounds=TRUE )
+  genomeToTranscriptCoords( position, transcript.ids, as.vector=FALSE, check.bounds=TRUE, end=c( 'none', 'both', '5', '3' ) )
   proteinCoordsToGenome( protein.ids, position=1, as.vector=FALSE, check.bounds=TRUE, truncate=TRUE )
   genomeToProteinCoords( position, protein.ids, as.vector=FALSE, check.bounds=TRUE )
 }
@@ -21,6 +21,7 @@
   or a protein or transcript sequence position for the other two methods )}
   \item{as.vector}{ Should the returned data be in the form of a vector (if \code{TRUE}) or a RangedData object (if \code{FALSE}) }
   \item{check.bounds}{ If \code{TRUE}, any postion outside the range of the protein/transcript will cause a warning to be issued and \code{NA} returned. }
+  \item{end}{ Should the UTR be taken in to account when calculating the location, one of (\code{"none"}, \code{"both"}, \code{"3"} or \code{"5"}). Defaults to \code{none}. }
   \item{truncate}{ If \code{truncate=TRUE}, any lengths beyond the end of the transcript or protein will be set to the last residue}
   \item{cds}{ If \code{cds=TRUE} then only the coding exons (or sub-regions of exons that are coding) are taken in to account. }
   \item{protein.ids}{ A vector of protein.ids (or a RangedData object of proteins returned from another annmap function) }

@@ -1,5 +1,11 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.8}{
+  \itemize{
+    \item{IMPROVED}{ ANNMAP-119 as.vector=TRUE results are now named }
+    \item{IMPROVED}{ ANNMAP-120 genomeToTranscriptCoords could handle coding regions }
+  }
+}
 \section{Changes in version 1.5.7}{
   \itemize{
     \item{BUG}{ Check for uniqueness in transcriptToCodingExon, transcriptToCodingRange, transcriptToUtrExon and transcriptToUtrRange }

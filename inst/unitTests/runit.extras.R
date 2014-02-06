@@ -76,10 +76,10 @@ test.filters = function() {
       checkTrue( dim( rbind( intergenic.frame, intergenic.frame.ex ) )[1] == dim( probesets.frame )[1], "intergenic plus non-intergenic should add up to all" )
       checkTrue( dim( rbind( unreliable.frame, unreliable.frame.ex ) )[1] == dim( probesets.frame )[1], "unreliable plus non-unreliable should add up to all" )
 
-      checkEquals( exonic.vector,     exonic.frame$stable_id )
-      checkEquals( intronic.vector,   intronic.frame$stable_id )
-      checkEquals( intergenic.vector, intergenic.frame$stable_id )
-      checkEquals( unreliable.vector, unreliable.frame$stable_id )
+      checkEquals( exonic.vector,     setNames( exonic.frame$stable_id,     exonic.frame$IN1 ) )
+      checkEquals( intronic.vector,   setNames( intronic.frame$stable_id,   intronic.frame$IN1 ) )
+      checkEquals( intergenic.vector, setNames( intergenic.frame$stable_id, intergenic.frame$IN1 ) )
+      checkEquals( unreliable.vector, setNames( unreliable.frame$stable_id, unreliable.frame$IN1 ) )
 
       print( 'Check the has.probes.x filters' )
       probesets.vector.four = hasProbes( probesets.vector, num.probes=4, exclude=FALSE )

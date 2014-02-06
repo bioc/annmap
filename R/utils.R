@@ -105,7 +105,13 @@
     NULL
   }
   else if( as.vector == TRUE ) {
-    data = unique( data[,column] )
+    ret = data[,column]
+    if( 'IN1' %in% colnames( data ) ) {
+      data = with(unique(data.frame(k=data$IN1,v=ret,stringsAsFactors=FALSE)),setNames(v,k))
+    }
+    else {
+      data = unique( ret )
+    }
   }
   else if( as.vector == FALSE ) {
     data = subset( data, select=!( colnames( data ) %in% .xmap.internals$field.mask ) )

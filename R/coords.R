@@ -229,12 +229,18 @@ transcriptCoordsToGenome = function( transcript.ids, position=1, as.vector=FALSE
   }
 }
 
-genomeToTranscriptCoords = function( position, transcript.ids, as.vector=FALSE, check.bounds=TRUE ) {
+genomeToTranscriptCoords = function( position, transcript.ids, as.vector=FALSE, check.bounds=TRUE, end=c( 'none', 'both', '5', '3' ) ) {
+  end = match.arg( end )
   transcript.ids = as.character( .get.correct.column( 'transcript', transcript.ids ) )
   if( is.null( transcript.ids ) ) {
     return( NULL )
   }
-  exons = transcriptToExon( unique( transcript.ids ), as.vector='data.frame' )
+  if( end == 'none' ) {
+    exons = transcriptToExon( unique( transcript.ids ), as.vector='data.frame' )
+  }
+  else {
+    exons = transcriptToCodingExon( unique( transcript.ids ), end=end, as.vector='data.frame' )
+  }
   if( is.null( exons ) ) {
     return( NULL )
   }

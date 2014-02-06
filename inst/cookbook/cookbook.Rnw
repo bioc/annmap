@@ -366,7 +366,7 @@ of the genomic target.
 \end{wrapfigure}
 When calling the following transformation queries (\code{XXXToYYY}, and \code{XXXDetails}), you should not rely on the order of the output being the same as the input order.
 
-If you need to look things up based on the input id you gave them, you should either subset based on the identifier column (ie: \lstinline{d[ elementMetadata( d )$stable_id == 'PTEN', ]}), or you can split the results based on a column (see section \ref{in1})
+If you need to look things up based on the input id you gave them, you should either subset based on the identifier column (ie: \lstinline{d[ d$stable_id == 'PTEN', ]}), or you can split the results based on a column (see section \ref{in1})
 
 \subsection{One thing to another}
 
@@ -422,7 +422,7 @@ geneToTranscript( gene )
 The \lstinline{GRanges} and \lstinline{data.frame} returned by \lstinline{'to'} queries, contain a column \lstinline{IN1}.  This corresponds to the initial query that led to the row being generated.  If we extract the \lstinline{IN1} column, we get the original 2 genes that we sent to the query:
 
 <<eval=TRUE,echo=TRUE>>=
-elementMetadata( geneToTranscript( symbolToGene( c( 'PTEN', 'SHH' ) ) ) )$IN1
+geneToTranscript( symbolToGene( c( 'PTEN', 'SHH' ) ) )$IN1
 @
 
 This can be very useful when we wish to use, for example, \lstinline{merge}, to combine a table of expression data with the annotation data supplied by \code{annmap}.
@@ -431,7 +431,7 @@ It can also be used with the \lstinline{split} method to get the returned data i
 
 <<eval=TRUE,echo=TRUE>>=
 exons = geneToExon( symbolToGene( c( 'PTEN', 'SHH' ) ) )
-split( elementMetadata( exons )[['stable_id']], elementMetadata( exons )[['IN1']] )
+split( exons$stable_id, exons$IN1 )
 @
 
 \subsubsection{Microarray probeset mappings}
