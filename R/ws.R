@@ -3,7 +3,11 @@
 }
 
 .xmcws.connect = function( name ) {
-  data = suppressWarnings( fromJSON( file='http://annmap.cruk.manchester.ac.uk/data/init.js' ) )
+  wshost = annmapGetParam( "wshost" )
+  if( is.null( wshost ) ) {
+    wshost = 'http://annmap.cruk.manchester.ac.uk'
+  }
+  data = suppressWarnings( fromJSON( file=paste( wshost, '/data/init.js', sep='' ) ) )
   a = do.call( 'rbind', unlist( lapply( names( data$items ), function( s ) {
     lapply( data$items[[ s ]]$versions, function( v ) {
       list( name=paste( s, v, sep='.' ), dbname=s, display=data$items[[ s ]]$display, version=v )
@@ -11,7 +15,7 @@
   } ), recursive=F ) )
   if( missing( name ) ) {
     r = menu( apply( a, 1, function( row ) {
-      paste( row$name, ' -- ', row$display, ' v', row$version, ' (http://annmap.cruk.manchester.ac.uk/?s=', row$dbname, ')', sep='' )
+      paste( row$name, ' -- ', row$display, ' v', row$version, ' (', wshost, '/?s=', row$dbname, ')', sep='' )
     } ), title="Select a database to connect to:" )
     if( r == 0 ) {
       return( invisible() )
@@ -28,13 +32,13 @@
   annmapDisconnect()
   species = as.character( dbs[,"dbname"] )
   version = as.character( dbs[,"version"] )
-  annmapSetParam( species=species, version=version, host='http://annmap.cruk.manchester.ac.uk', db.name=name, connected=TRUE )
+  annmapSetParam( species=species, version=version, host=wshost, db.name=name, connected=TRUE )
 
-  cat( paste( 'Connected to ', name, ' (http://annmap.cruk.manchester.ac.uk)\n', sep='' ) )
+  cat( paste( 'Connected to ', name, ' (', wshost, ')\n', sep='' ) )
 
   arrayType( NULL, pick.default=TRUE )
 
-  invisible( list( host='http://annmap.cruk.manchester.ac.uk', species=species, version=version ) )
+  invisible( list( host=wshost, species=species, version=version ) )
 }
 
 .pretty.size = function( x ) {
@@ -46,7 +50,11 @@
 }
 
 .load.and.parse = function( elements ) {
-  url = paste( 'http://annmap.cruk.manchester.ac.uk/data/annmapws/', paste( elements, collapse='/' ), '.js', sep='' )
+  wshost = annmapGetParam( "wshost" )
+  if( is.null( wshost ) ) {
+    wshost = 'http://annmap.cruk.manchester.ac.uk'
+  }
+  url = paste( wshost, '/data/annmapws/', paste( elements, collapse='/' ), '.js', sep='' )
 
   .xmap.internals$debugFn( paste( 'calling', url ) )
 

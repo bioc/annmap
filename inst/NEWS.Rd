@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.5.10}{
+  \itemize{
+    \item{IMPROVED}{ ANNMAP-121 Allow setting of WS base url for local testing }
+  }
+}
 \section{Changes in version 1.5.8}{
   \itemize{
     \item{IMPROVED}{ ANNMAP-119 as.vector=TRUE results are now named }
