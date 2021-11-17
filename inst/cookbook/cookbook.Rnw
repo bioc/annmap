@@ -56,8 +56,8 @@ of different species are supported - each with their own separate database.
 available MySQL databases (as described in the \href{file:INSTALL.pdf}{INSTALL}
 vignette that came with this package).}
 
-It is also possible to connect to the annmap webservice instead of installing your
-own database -- with some caveats. Please see the section \ref{wsc} for details.
+It was formerly possible to connect to the annmap webservice instead of installing your
+own database, but this service is no longer available.
 
 \subsection{Preamble}
 
@@ -174,6 +174,8 @@ from\footnote{unless you only have one database defined, in which case it will
 simply connect you to that}.
 
 \subsection{Using the annmap webservice\label{wsc}}
+
+*** NOTE: This service is not currently available ***
 
 It's also possible to connect to the annmap webservice to get your data.
 
