@@ -89,7 +89,11 @@ annmapConnect = function( name, use.webservice=FALSE, quiet.webservice=FALSE ) {
     }
     a = tryCatch( url( wshost ), warning=function( w ) NULL, error=function( e ) NULL )
     if( is.null( a ) ) {
-      stop( paste( 'Cannot connect to ', wshost, '. Are you sure you have an internet connection?', sep='' ) )
+      if ( wshost == 'http://annmap.cruk.manchester.ac.uk' ) {
+        stop( 'http://annmap.cruk.manchester.ac.uk is no longer available' )
+      } else {
+        stop( paste( 'Cannot connect to ', wshost, '. Are you sure you have an internet connection?', sep='' ) )
+      }
     }
     close( a )
     if( !require( 'rjson', quietly=T ) ) { 
