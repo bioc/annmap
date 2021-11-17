@@ -8,7 +8,7 @@
                                                   888
 
   This is the annmap BioConductor package for use with the annmap database
-available from http://annmap.cruk.manchester.ac.uk/download
+available from: https://figshare.manchester.ac.uk/articles/dataset/ANNMAP_Database/16685071 
 
   For instructions on how to install that database, please see the README.TXT
 file inside the downloads found on that page.
@@ -34,4 +34,4 @@ element is being left blank)
 passed to annmapConnect() as a parameter, or will be displayed to the user in a
 menu if annmapConnect() is called with no parameters
 
-Please let me know of any issues at tyates(at)picr.man.ac.uk
+Please let me know of any issues at marek.dynowski(at)cruk.manchester.ac.uk
