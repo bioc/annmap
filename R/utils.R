@@ -547,8 +547,7 @@ annmapGetParam = function( key ) {
   #path = file.path( .xmap.internals$conf.dir, "cache" )
   path = tools::R_user_dir("annmap", which="cache")
   if( !file.exists( path ) ) {
-    #r = dir.create( path )
-    path = tools::R_user_dir("annmap", which="cache")
+    r = dir.create( path, recursive=TRUE )
     if( !r ) {
       warning( paste( "Could not create or locate cache folder '", path, "', running with caching disabled", sep="" ) )
       path = NULL

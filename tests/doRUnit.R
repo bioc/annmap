@@ -37,7 +37,8 @@ if( require( "RUnit", quietly=TRUE ) ) {
   else {
     func = paste( "^test\\.", func, ".+", sep="" )
   }
-  testSuite <- defineTestSuite( name=paste( pkg, "unit testing" ), testFileRegexp=patt, testFuncRegexp=func, dirs=path )
+  #testSuite <- defineTestSuite( name=paste( pkg, "unit testing" ), testFileRegexp=patt, testFuncRegexp=func, dirs=path )
+  testSuite <- defineTestSuite( name=paste( pkg, "unit testing" ), testFileRegexp=patt, testFuncRegexp=func, dirs=path, rngKind="Mersenne-Twister" )
   tests <- runTestSuite( testSuite )
  
   pathReport <- file.path( path, "report" )
