@@ -11,7 +11,7 @@ Description: annmap provides annotation mappings for Affymetrix exon
         data are from Ensembl.
         The annmap database can be downloaded from: 
         https://figshare.manchester.ac.uk/account/articles/16685071
-Version: 1.37.1
+Version: 1.36.99
 Date: 2011-09-14
 Author: Tim Yates <Tim.Yates@cruk.manchester.ac.uk>
 Maintainer: Chris Wirth <Christopher.Wirth@cruk.manchester.ac.uk>
@@ -20,7 +20,7 @@ Imports: DBI, RMySQL (>= 0.6-0), digest, Biobase, grid, lattice,
         Rsamtools, genefilter, IRanges, BiocGenerics
 Suggests: RUnit, rjson, Gviz
 License: GPL-2
-URL: https://gitlab.com/cruk-mi/annmap
+URL: https://github.com/cruk-mi/annmap
 Collate: zzz.R db.R utils.R cache.R statements.R filtering.R utr.R
         coords.R ws.R plot.genomic.R plot.ngs.R si.R
 biocViews: Annotation, Microarray, OneChannel, ReportWriting,
