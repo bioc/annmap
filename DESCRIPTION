@@ -20,7 +20,7 @@ Imports: DBI, RMySQL (>= 0.6-0), digest, Biobase, grid, lattice,
         Rsamtools, genefilter, IRanges, BiocGenerics
 Suggests: RUnit, rjson, Gviz
 License: GPL-2
-URL: https://gitlab.com/cruk-mi/annmap
+URL: https://github.com/cruk-mi/annmap
 Collate: zzz.R db.R utils.R cache.R statements.R filtering.R utr.R
         coords.R ws.R plot.genomic.R plot.ngs.R si.R
 biocViews: Annotation, Microarray, OneChannel, ReportWriting,

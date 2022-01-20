@@ -1,5 +1,10 @@
 \name{NEWS}
 \title{NEWS file for the annmap package}
+\section{Changes in version 1.36.99}{
+  \itemize{
+    \item{IMPROVED}{ Version number changed to reflect Bioconductor repository }
+  }
+}
 \section{Changes in version 1.5.11}{
   \itemize{
     \item{IMPROVED}{ ANNMAP-121 The data is now cached in a dedicated directory instead of in the home directory}
